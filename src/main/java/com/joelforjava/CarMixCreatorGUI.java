@@ -40,7 +40,7 @@ import org.farng.mp3.id3.ID3v1;
  */
 public class CarMixCreatorGUI extends javax.swing.JFrame {
 
-    /** Creates new form CarMixCreatorGUI */
+	/** Creates new form CarMixCreatorGUI */
     public CarMixCreatorGUI() {
         initComponents();
     }
@@ -103,39 +103,37 @@ public class CarMixCreatorGUI extends javax.swing.JFrame {
   };
 
   private Status processPlaylistFile(File file) {
-    try {
-      BufferedReader input = new BufferedReader(new FileReader(file));
+    try(FileReader fileReader = new FileReader(file);
+    	BufferedReader input = new BufferedReader(fileReader)) {
+      
       String strLogInfo = "";
 
-      try {
-        String firstLine = input.readLine();
-        String nextLine = null;
-        if (!M3U_HEADER.equals(firstLine)) {
-          strLogInfo = "Header Not Found for file: " + file.getName();
-          Logger.getLogger(CarMixCreatorGUI.class.getName()).log(Level.SEVERE, strLogInfo);
-          return Status.INVALID_HEADER; // preferably, throw error
-        }
-
-        strLogInfo = "Header found for file: " + file.getName();
-        Logger.getLogger(CarMixCreatorGUI.class.getName()).log(Level.INFO, strLogInfo);
-        setProgressInfoText(strLogInfo);
-
-        boolean keepReading = true;
-        do {
-          nextLine = input.readLine();
-          if (nextLine == null) {
-              keepReading = false;
-          } else if ("".equals(nextLine)) {
-              continue;
-          } else if (nextLine.startsWith(M3U_INFO)) {
-              //processExtraInfo(nextLine);
-          } else { // This should be a File URL
-              processTrackURL(nextLine);
-          }
-        } while (keepReading);
-      } finally {
-        input.close();
+      String firstLine = input.readLine();
+      String nextLine = null;
+      if (!M3U_HEADER.equals(firstLine)) {
+        strLogInfo = "Header Not Found for file: " + file.getName();
+        LOGGER.log(Level.SEVERE, strLogInfo);
+        return Status.INVALID_HEADER; // preferably, throw error
       }
+
+      strLogInfo = "Header found for file: " + file.getName();
+      LOGGER.log(Level.INFO, strLogInfo);
+      setProgressInfoText(strLogInfo);
+
+      boolean keepReading = true;
+      do {
+        nextLine = input.readLine();
+        if (nextLine == null) {
+            keepReading = false;
+        } else if ("".equals(nextLine)) {
+            continue;
+        } else if (nextLine.startsWith(M3U_INFO)) {
+            //processExtraInfo(nextLine);
+        } else { // This should be a File URL
+            processTrackURL(nextLine);
+        }
+      } while (keepReading);
+      
     } catch (FileNotFoundException fnfe) {
       fnfe.printStackTrace();
     } catch (IOException ioe) {
@@ -169,18 +167,18 @@ public class CarMixCreatorGUI extends javax.swing.JFrame {
               copy(inFile, outFile);
               String strLogInfo = "Copied: " + strLine + "\n to " + newFileName;
               setProgressInfoText(strLogInfo);
-              Logger.getLogger(CarMixCreatorGUI.class.getName()).log(Level.INFO, strLogInfo);
+              LOGGER.log(Level.INFO, strLogInfo);
           } catch (TagException te) {
               te.getMessage();
-              Logger.getLogger(CarMixCreatorGUI.class.getName()).log(Level.SEVERE, null, te);
+              LOGGER.log(Level.SEVERE, null, te);
           }catch (IOException ex) {
               // Display new error message
               ex.getMessage();
-              Logger.getLogger(CarMixCreatorGUI.class.getName()).log(Level.SEVERE, null, ex);
+              LOGGER.log(Level.SEVERE, null, ex);
           }
       } else {
         String strLogInfo = "File not found! - " + strLine;
-        Logger.getLogger(CarMixCreatorGUI.class.getName()).log(Level.WARNING, strLogInfo);
+        LOGGER.log(Level.WARNING, strLogInfo);
       }
   }
 
@@ -235,7 +233,7 @@ public class CarMixCreatorGUI extends javax.swing.JFrame {
       if (inFile.getCanonicalPath().equals(outFile.getCanonicalPath())) {
         // inFile and outFile are the same;
         // hence no copying is required.
-        Logger.getLogger(CarMixCreatorGUI.class.getName()).log(Level.INFO, "Files are the same, no copy performed");
+        LOGGER.log(Level.INFO, "Files are the same, no copy performed");
         return;
       }
 
@@ -244,9 +242,6 @@ public class CarMixCreatorGUI extends javax.swing.JFrame {
       if (outFile.isDirectory()) {
           outFile = new File(outFile, inFile.getName());
       }
-
-      InputStream in = null;
-      OutputStream out = null;
 
       if (outFile.exists()) {
           if (!outFile.canWrite()) {
@@ -275,28 +270,15 @@ public class CarMixCreatorGUI extends javax.swing.JFrame {
           verifyFile(inFile, FILE_TYPE, WRITE_FILE);
       }
 
-      try {
-        in = new BufferedInputStream(new FileInputStream(inFile));
-        out = new BufferedOutputStream(new FileOutputStream(outFile));
+      try(FileInputStream fis = new FileInputStream(inFile);
+    	  FileOutputStream fos = new FileOutputStream(outFile);
+    	  InputStream in = new BufferedInputStream(fis);
+    	  OutputStream out = new BufferedOutputStream(fos)) {
         byte[] buffer = new byte[4096];
         int bytesRead;
         while ((bytesRead = in.read(buffer)) != -1){
             out.write(buffer, 0, bytesRead);
-        } // write
-
-      } finally {
-        if (in != null) {
-          try {
-            in.close();
-          } catch (Exception e) {
-          }
-        }
-        if (out != null) {
-          try {
-            out.close();
-          } catch (Exception e) {
-          }
-        }
+        } // write    	  
       }
   }
 
@@ -526,6 +508,8 @@ public class CarMixCreatorGUI extends javax.swing.JFrame {
 
     private static final String DIR_TYPE = "D";
     private static final String FILE_TYPE = "F";
+
+    private static final Logger LOGGER = Logger.getLogger(CarMixCreatorGUI.class.getName());
 
     public enum Status {
         INVALID_HEADER,
