@@ -11,18 +11,17 @@
 
 package com.joelforjava;
 
-import java.io.BufferedInputStream;
-import java.io.BufferedOutputStream;
+import static java.nio.file.StandardCopyOption.*;
+
 import java.io.BufferedReader;
 import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
-import java.io.FileOutputStream;
-import java.io.FileReader;
 import java.io.IOException;
-import java.io.InputStream;
 import java.io.InputStreamReader;
-import java.io.OutputStream;
+import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.swing.JFileChooser;
@@ -30,6 +29,8 @@ import javax.swing.JFrame;
 import javax.swing.filechooser.FileFilter;
 import javax.swing.filechooser.FileNameExtensionFilter;
 import javax.xml.ws.Action;
+
+import org.apache.commons.lang3.StringUtils;
 import org.farng.mp3.MP3File;
 import org.farng.mp3.TagException;
 import org.farng.mp3.id3.ID3v1;
@@ -95,67 +96,51 @@ public class CarMixCreatorGUI extends javax.swing.JFrame {
       //showFileErrorBox();
     }
 
-    File filPlaylist = new File(strPlaylistFileName);
-    Status status = processPlaylistFile(filPlaylist);
+    Path playlistPath = Paths.get(strPlaylistFileName);
+    Status status = processPlaylistPath(playlistPath);
     if (status == Status.PROC_SUCCESSFULLY) {
       //showAboutBox();
     }
   };
 
-  private Status processPlaylistFile(File file) {
-    try(FileReader fileReader = new FileReader(file);
-    	BufferedReader input = new BufferedReader(fileReader)) {
-      
-      String strLogInfo = "";
-
-      String firstLine = input.readLine();
-      String nextLine = null;
-      if (!M3U_HEADER.equals(firstLine)) {
-        strLogInfo = "Header Not Found for file: " + file.getName();
-        LOGGER.log(Level.SEVERE, strLogInfo);
-        return Status.INVALID_HEADER; // preferably, throw error
-      }
-
-      strLogInfo = "Header found for file: " + file.getName();
-      LOGGER.log(Level.INFO, strLogInfo);
-      setProgressInfoText(strLogInfo);
-
-      boolean keepReading = true;
-      do {
-        nextLine = input.readLine();
-        if (nextLine == null) {
-            keepReading = false;
-        } else if ("".equals(nextLine)) {
-            continue;
-        } else if (nextLine.startsWith(M3U_INFO)) {
-            //processExtraInfo(nextLine);
-        } else { // This should be a File URL
-            processTrackURL(nextLine);
-        }
-      } while (keepReading);
-      
-    } catch (FileNotFoundException fnfe) {
-      fnfe.printStackTrace();
-    } catch (IOException ioe) {
-      ioe.printStackTrace();
-    }
-
+  private Status processPlaylistPath(Path path) {
+	List<String> lines;
+	try {
+		lines = Files.readAllLines(path, StandardCharsets.ISO_8859_1);
+		String firstLine = lines.remove(0);
+		if (!M3U_HEADER.equals(firstLine)) {
+			LOGGER.log(Level.WARNING, "M3U Header Not Found. for file: " + path.toString());
+	        return Status.INVALID_HEADER; // preferably, throw error
+		}
+		LOGGER.log(Level.INFO, "M3U Header Found");
+		for (String s : lines) {
+			if (StringUtils.isBlank(s)) {
+				continue;
+			} else if (s.startsWith(M3U_INFO)) {
+				continue;
+				// processExtraInfo(s);
+			} else {
+				processTrackURL(s);
+			}
+		}
+	} catch (IOException e) {
+		e.printStackTrace();
+	}
     return Status.PROC_SUCCESSFULLY;
+	
   }
-
+  
   private void processTrackURL(String strLine) {
-      // First, try strLine as if it were a complete file URL
-      // i.e. C:\Music\etc
-      if (checkFileOrDirectoryExists(strLine)) {
+	  Path source = Paths.get(strLine);
+      if (Files.exists(source)) {
           // do stuff
           String albumName = "";
           String artistName = "";
-          File inFile = new File(strLine);
-          String fileName = inFile.getName();
-          String newFileName = "";
+          String fileName = source.getFileName().toString();
+          String newFileName = this.getStrDestDirectoryName() + fileName;
           try {
               if (usingArtistName) {
-                  MP3File mp3File = new MP3File(inFile, false);
+                  MP3File mp3File = new MP3File(source.toFile(), false);
                   ID3v1 tag = mp3File.getID3v1Tag();
                   artistName = tag.getArtist();
 
@@ -163,8 +148,8 @@ public class CarMixCreatorGUI extends javax.swing.JFrame {
               } else {
                   newFileName = this.getStrDestDirectoryName() + fileName;
               }
-              File outFile = new File(newFileName);
-              copy(inFile, outFile);
+              Path target = Paths.get(newFileName);
+              copy(source, target);
               String strLogInfo = "Copied: " + strLine + "\n to " + newFileName;
               setProgressInfoText(strLogInfo);
               LOGGER.log(Level.INFO, strLogInfo);
@@ -177,19 +162,9 @@ public class CarMixCreatorGUI extends javax.swing.JFrame {
               LOGGER.log(Level.SEVERE, null, ex);
           }
       } else {
-        String strLogInfo = "File not found! - " + strLine;
-        LOGGER.log(Level.WARNING, strLogInfo);
+        String strLogWarning = "File not found! - " + strLine;
+        LOGGER.log(Level.WARNING, strLogWarning);
       }
-  }
-
-  private boolean checkFileOrDirectoryExists(String strLine) {
-      File file = new File(strLine);
-      try {
-          System.out.println(file.getCanonicalPath());
-      } catch (IOException ioe) {
-
-      }
-      return file.exists();
   }
 
   /**
@@ -203,86 +178,68 @@ public class CarMixCreatorGUI extends javax.swing.JFrame {
    * @return
    * @throws java.io.IOException
    */
-  private static boolean verifyFile(File aFile, String indFileDir, String indReadWrite) throws IOException {
-    if (!aFile.exists()) {
-      throw new IOException("File Verification: " + aFile.getPath() + " does not exist");
+  private static boolean verifyFile(Path aPath, String indFileDir, String indReadWrite) throws IOException {
+    if (!Files.exists(aPath)) {
+      throw new IOException("File Verification: " + aPath.getFileName() + " does not exist");
     }
     if (FILE_TYPE.equals(indFileDir)) {
-      if (!aFile.isFile()) {
-        throw new IOException("File Verification: " + aFile.getPath() + " does not exist");
+      if (!Files.isRegularFile(aPath)) {
+        throw new IOException("File Verification: " + aPath.getFileName() + " does not exist");
       }
     } else if (DIR_TYPE.equals(indFileDir)) {
-      if (!aFile.isDirectory()) {
-        throw new IOException("Directory Verification: " + aFile.getPath() + " does not exist");
+      if (!Files.isDirectory(aPath)) {
+        throw new IOException("Directory Verification: " + aPath.getFileName() + " does not exist");
       }
     }
     if (READ_FILE.equals(indReadWrite)) {
-      if (!aFile.canRead()) {
-        throw new IOException("File Verification: Cannot read file " + aFile.getPath());
+  	  if (!Files.isReadable(aPath)) {
+        throw new IOException("File Verification: Cannot read file " + aPath.getFileName());
       }
     } else if (WRITE_FILE.equals(indReadWrite)){
-      if (!aFile.canWrite()) {
-        throw new IOException("File Verification: Cannot write to file " + aFile.getPath());
+      if (!Files.isWritable(aPath)) {
+        throw new IOException("File Verification: Cannot write to file " + aPath.getFileName());
       }
     }
     return false;
   }
   
-  public static void copy(File inFile, File outFile) throws IOException {
-
-      if (inFile.getCanonicalPath().equals(outFile.getCanonicalPath())) {
-        // inFile and outFile are the same;
-        // hence no copying is required.
-        LOGGER.log(Level.INFO, "Files are the same, no copy performed");
-        return;
-      }
-
-      verifyFile(inFile, FILE_TYPE, READ_FILE);
-
-      if (outFile.isDirectory()) {
-          outFile = new File(outFile, inFile.getName());
-      }
-
-      if (outFile.exists()) {
-          if (!outFile.canWrite()) {
-              throw new IOException("Cannot write to: " + outFile);
-          }
-          // This should become a prompt for the GUI
-          System.out.print("Overwrite existing file " + outFile.getName() + "? (Y/N): ");
-          System.out.flush();
-          BufferedReader promptIn = new BufferedReader(new InputStreamReader(System.in));
-          String response = promptIn.readLine();
-          if (!response.toUpperCase().equals("Y")) {
-              throw new IOException("FileCopy: " + "existing file was not overwritten.");
-          }
+  public static void copy(Path inPath, Path outPath) throws IOException {
+      
+	  if (Files.exists(outPath) && Files.isSameFile(inPath, outPath)) {
+		  LOGGER.log(Level.INFO, "Files are the same, no copy performed");
+		  return;
+	  }
+	  
+	  verifyFile(inPath, FILE_TYPE, READ_FILE);
+	  
+      if (Files.exists(outPath)) {
+    	  if (!Files.isWritable(outPath)) {
+    		  throw new IOException("Cannot write to: " + outPath);
+    	  }
+    	  // This STILL needs to be a prompt for the GUI.
+    	  System.out.print("Overwrite existing file " + outPath.getFileName() + "? (Y/N): ");
+    	  System.out.flush();
+    	  BufferedReader promptIn = new BufferedReader(new InputStreamReader(System.in));
+    	  String response = promptIn.readLine();
+    	  if (!response.toUpperCase().equals("Y")) {
+    		  throw new IOException("FileCopy: Existing file " + outPath.getFileName() + " was not overwritten");
+    	  }
       } else {
-          File dirFile = outFile.getParentFile();
-
-          if (dirFile != null && (!dirFile.exists())) {
-            if (!dirFile.mkdirs()) {
-              if(!dirFile.exists()) {
-                throw new IOException("Cannot create directory: " + dirFile);
-              }
-            }
+          Path parentDirectory = outPath.getParent();
+          if (!Files.exists(parentDirectory)) {
+        	  Files.createDirectories(parentDirectory);
+        	  if (!Files.exists(parentDirectory)) {
+        		  throw new IOException("Cannot create directory: " + parentDirectory);
+        	  }
           }
-
-          // check for exists, isFile, canWrite
-          verifyFile(inFile, FILE_TYPE, WRITE_FILE);
+    	  
+          // check for exists, isRegularFile, canWrite
+          // TODO - determine why inPath instead of outPath
+          verifyFile(inPath, FILE_TYPE, WRITE_FILE);
       }
-
-      try(FileInputStream fis = new FileInputStream(inFile);
-    	  FileOutputStream fos = new FileOutputStream(outFile);
-    	  InputStream in = new BufferedInputStream(fis);
-    	  OutputStream out = new BufferedOutputStream(fos)) {
-        byte[] buffer = new byte[4096];
-        int bytesRead;
-        while ((bytesRead = in.read(buffer)) != -1){
-            out.write(buffer, 0, bytesRead);
-        } // write    	  
-      }
+      Files.copy(inPath, outPath, COPY_ATTRIBUTES, REPLACE_EXISTING);
   }
-
-
+  
     /** This method is called from within the constructor to
      * initialize the form.
      * WARNING: Do NOT modify this code. The content of this method is
@@ -503,13 +460,13 @@ public class CarMixCreatorGUI extends javax.swing.JFrame {
     private static final String M3U_HEADER = "#EXTM3U";
     private static final String M3U_INFO = "#EXTINF";
 
+    private static final Logger LOGGER = Logger.getLogger(CarMixCreatorGUI.class.getName());
+
     private static final String READ_FILE = "R";
     private static final String WRITE_FILE = "W";
 
     private static final String DIR_TYPE = "D";
     private static final String FILE_TYPE = "F";
-
-    private static final Logger LOGGER = Logger.getLogger(CarMixCreatorGUI.class.getName());
 
     public enum Status {
         INVALID_HEADER,
