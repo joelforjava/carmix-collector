@@ -182,25 +182,34 @@ public class CarMixCreatorGUI extends javax.swing.JFrame {
     if (!Files.exists(aPath)) {
       throw new IOException("File Verification: " + aPath.getFileName() + " does not exist");
     }
-    if (FILE_TYPE.equals(indFileDir)) {
-      if (!Files.isRegularFile(aPath)) {
-        throw new IOException("File Verification: " + aPath.getFileName() + " does not exist");
-      }
-    } else if (DIR_TYPE.equals(indFileDir)) {
-      if (!Files.isDirectory(aPath)) {
-        throw new IOException("Directory Verification: " + aPath.getFileName() + " does not exist");
-      }
+
+    switch(indFileDir) {
+	    case FILE_TYPE:
+	        if (!Files.isRegularFile(aPath)) {
+	            throw new IOException("File Verification: " + aPath.getFileName() + " does not exist");
+	        }
+	        break;
+	    case DIR_TYPE:
+	        if (!Files.isDirectory(aPath)) {
+	            throw new IOException("Directory Verification: " + aPath.getFileName() + " does not exist");
+	        }
+	        break;
     }
-    if (READ_FILE.equals(indReadWrite)) {
-  	  if (!Files.isReadable(aPath)) {
-        throw new IOException("File Verification: Cannot read file " + aPath.getFileName());
-      }
-    } else if (WRITE_FILE.equals(indReadWrite)){
-      if (!Files.isWritable(aPath)) {
-        throw new IOException("File Verification: Cannot write to file " + aPath.getFileName());
-      }
+
+    switch(indReadWrite) {
+	    case READ_FILE:
+	    	if (!Files.isReadable(aPath)) {
+    	        throw new IOException("File Verification: Cannot read file " + aPath.getFileName());
+    	    }
+	        break;
+	    case WRITE_FILE:
+	        if (!Files.isWritable(aPath)) {
+	            throw new IOException("File Verification: Cannot write to file " + aPath.getFileName());
+	        }
+	        break;
+    
     }
-    return false;
+    return true;
   }
   
   public static void copy(Path inPath, Path outPath) throws IOException {
