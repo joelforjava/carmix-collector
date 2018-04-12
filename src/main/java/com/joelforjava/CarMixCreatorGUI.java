@@ -145,18 +145,13 @@ public class CarMixCreatorGUI extends javax.swing.JFrame {
                   artistName = tag.getArtist();
 
                   newFileName = this.getStrDestDirectoryName() + artistName + "\\" + fileName;
-              } else {
-                  newFileName = this.getStrDestDirectoryName() + fileName;
               }
               Path target = Paths.get(newFileName);
               copy(source, target);
               String strLogInfo = "Copied: " + strLine + "\n to " + newFileName;
               setProgressInfoText(strLogInfo);
               LOGGER.log(Level.INFO, strLogInfo);
-          } catch (TagException te) {
-              te.getMessage();
-              LOGGER.log(Level.SEVERE, null, te);
-          }catch (IOException ex) {
+          }catch (TagException | IOException ex) {
               // Display new error message
               ex.getMessage();
               LOGGER.log(Level.SEVERE, null, ex);
