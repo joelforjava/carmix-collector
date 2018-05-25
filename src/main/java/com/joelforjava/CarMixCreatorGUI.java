@@ -31,6 +31,7 @@ import org.farng.mp3.MP3File;
 import org.farng.mp3.TagException;
 import org.farng.mp3.id3.ID3v1;
 
+import com.joelforjava.processor.M3UPlaylistProcessor;
 import com.joelforjava.service.CopyFileService;
 
 /**
@@ -42,6 +43,7 @@ public class CarMixCreatorGUI extends javax.swing.JFrame {
 	/** Creates new form CarMixCreatorGUI */
     public CarMixCreatorGUI() {
     	copyService = new CopyFileService();
+    	playlistProcessor = new M3UPlaylistProcessor();
         initComponents();
     }
 
@@ -103,27 +105,9 @@ public class CarMixCreatorGUI extends javax.swing.JFrame {
   };
 
   private Status processPlaylistPath(Path path) {
-	List<String> lines;
-	try {
-		lines = Files.readAllLines(path, StandardCharsets.ISO_8859_1);
-		String firstLine = lines.remove(0);
-		if (!M3U_HEADER.equals(firstLine)) {
-			LOGGER.log(Level.WARNING, "M3U Header Not Found. for file: " + path.toString());
-	        return Status.INVALID_HEADER; // preferably, throw error
-		}
-		LOGGER.log(Level.INFO, "M3U Header Found");
-		for (String s : lines) {
-			if (StringUtils.isBlank(s)) {
-				continue;
-			} else if (s.startsWith(M3U_INFO)) {
-				continue;
-				// processExtraInfo(s);
-			} else {
-				processTrackURL(s);
-			}
-		}
-	} catch (IOException e) {
-		e.printStackTrace();
+	List<String> lines = playlistProcessor.extractURIs(path);
+	for (String line : lines) {
+		processTrackURL(line);
 	}
     return Status.PROC_SUCCESSFULLY;
 	
@@ -384,6 +368,8 @@ public class CarMixCreatorGUI extends javax.swing.JFrame {
     private static final Logger LOGGER = Logger.getLogger(CarMixCreatorGUI.class.getName());
 
 	private final CopyFileService copyService;
+	
+	private final M3UPlaylistProcessor playlistProcessor;
 	
     public enum Status {
         INVALID_HEADER,
