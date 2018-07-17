@@ -13,7 +13,6 @@ package com.joelforjava;
 
 import java.io.File;
 import java.io.IOException;
-import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -26,7 +25,6 @@ import javax.swing.filechooser.FileFilter;
 import javax.swing.filechooser.FileNameExtensionFilter;
 import javax.xml.ws.Action;
 
-import org.apache.commons.lang3.StringUtils;
 import org.farng.mp3.MP3File;
 import org.farng.mp3.TagException;
 import org.farng.mp3.id3.ID3v1;
@@ -98,13 +96,13 @@ public class CarMixCreatorGUI extends javax.swing.JFrame {
     }
 
     Path playlistPath = Paths.get(strPlaylistFileName);
-    Status status = processPlaylistPath(playlistPath);
+    Status status = processPlaylist(playlistPath);
     if (status == Status.PROC_SUCCESSFULLY) {
       //showAboutBox();
     }
   };
 
-  private Status processPlaylistPath(Path path) {
+  private Status processPlaylist(Path path) {
 	List<String> lines = playlistProcessor.extractURIs(path);
 	for (String line : lines) {
 		processTrackURL(line);
@@ -179,33 +177,17 @@ public class CarMixCreatorGUI extends javax.swing.JFrame {
         progressInfoTextField.setBorder(null);
 
         m3uFileSelectButton.setText("Select");
-        m3uFileSelectButton.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                m3uFileSelectButtonActionPerformed(evt);
-            }
-        });
+        m3uFileSelectButton.addActionListener(evt -> selectPlaylistFile());
 
         selectDestinationButton.setText("Select");
-        selectDestinationButton.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                selectDestinationButtonActionPerformed(evt);
-            }
-        });
+        selectDestinationButton.addActionListener(evt -> selectDestinationDirectory());
 
         copyFilesButton.setText("Copy Files");
-        copyFilesButton.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                copyFilesButtonActionPerformed(evt);
-            }
-        });
+        copyFilesButton.addActionListener(evt -> copyFilesToDestination());
 
         usingArtistCheckbox.setText("Artist");
         usingArtistCheckbox.setToolTipText("Use Artist Name");
-        usingArtistCheckbox.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                usingArtistCheckboxActionPerformed(evt);
-            }
-        });
+        usingArtistCheckbox.addActionListener(evt -> usingArtistCheckboxActionPerformed(evt));
 
         jMenu1.setText("File");
         jMenuBar1.add(jMenu1);
@@ -267,21 +249,6 @@ public class CarMixCreatorGUI extends javax.swing.JFrame {
 
         pack();
     }// </editor-fold>//GEN-END:initComponents
-
-    private void m3uFileSelectButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_m3uFileSelectButtonActionPerformed
-        // TODO add your handling code here:
-        selectPlaylistFile();
-    }//GEN-LAST:event_m3uFileSelectButtonActionPerformed
-
-    private void selectDestinationButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_selectDestinationButtonActionPerformed
-        // TODO add your handling code here:
-        selectDestinationDirectory();
-    }//GEN-LAST:event_selectDestinationButtonActionPerformed
-
-    private void copyFilesButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_copyFilesButtonActionPerformed
-        // TODO add your handling code here:
-        copyFilesToDestination();
-    }//GEN-LAST:event_copyFilesButtonActionPerformed
 
     private void usingArtistCheckboxActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_usingArtistCheckboxActionPerformed
         // TODO add your handling code here:
@@ -361,9 +328,6 @@ public class CarMixCreatorGUI extends javax.swing.JFrame {
 
     private boolean usingArtistName;
     private boolean usingAlbumName;
-
-    private static final String M3U_HEADER = "#EXTM3U";
-    private static final String M3U_INFO = "#EXTINF";
 
     private static final Logger LOGGER = Logger.getLogger(CarMixCreatorGUI.class.getName());
 
