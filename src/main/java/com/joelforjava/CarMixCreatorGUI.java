@@ -267,11 +267,7 @@ public class CarMixCreatorGUI extends javax.swing.JFrame {
     * @param args the command line arguments
     */
     public static void main(String args[]) {
-        java.awt.EventQueue.invokeLater(new Runnable() {
-            public void run() {
-                new CarMixCreatorGUI().setVisible(true);
-            }
-        });
+        java.awt.EventQueue.invokeLater(() -> new CarMixCreatorGUI().setVisible(true));
     }
 
   public String getStrDestDirectoryName() {

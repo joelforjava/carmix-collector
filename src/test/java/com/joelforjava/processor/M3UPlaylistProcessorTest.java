@@ -4,29 +4,26 @@ import org.junit.Assert;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
-import org.junit.runner.RunWith;
-import org.mockito.Mockito;
-import org.powermock.api.mockito.PowerMockito;
-import org.powermock.core.classloader.annotations.PrepareForTest;
-import org.powermock.modules.junit4.PowerMockRunner;
+import org.junit.rules.TemporaryFolder;
 
-import java.nio.charset.StandardCharsets;
-import java.nio.file.Files;
+import java.io.BufferedWriter;
+import java.io.File;
+import java.io.FileWriter;
 import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.List;
 
-@PrepareForTest(M3UPlaylistProcessor.class)
-@RunWith(PowerMockRunner.class)
 public class M3UPlaylistProcessorTest {
 
     @Rule
     public final ExpectedException expectedException = ExpectedException.none();
 
+    @Rule
+    public final TemporaryFolder temporaryFolder = new TemporaryFolder();
+
     @Test
     public void testWithSingleEntry() throws Exception {
-        Path p = Paths.get("Test");
+        File inFile = temporaryFolder.newFile("testIn.m3u");
 
         List<String> lines = new ArrayList<String>() {{
             add("#EXTM3U");
@@ -34,8 +31,13 @@ public class M3UPlaylistProcessorTest {
             add("M:\\Temp\\File.mp3");
         }};
 
-        PowerMockito.mockStatic(Files.class);
-        Mockito.when(Files.readAllLines(p, StandardCharsets.ISO_8859_1)).thenReturn(lines);
+        try (BufferedWriter bw = new BufferedWriter(new FileWriter(inFile))) {
+            for (String line : lines) {
+                bw.write(line);
+                bw.newLine();
+            }
+        }
+        Path p = inFile.toPath();
 
         M3UPlaylistProcessor processor = new M3UPlaylistProcessor();
         List<String> extracted = processor.extractURIs(p);
@@ -45,7 +47,7 @@ public class M3UPlaylistProcessorTest {
 
     @Test
     public void testWithMultipleEntries() throws Exception {
-        Path p = Mockito.mock(Path.class);
+        File inFile = temporaryFolder.newFile("testIn.m3u");
 
         List<String> lines = new ArrayList<String>() {{
             add("#EXTM3U");
@@ -57,8 +59,13 @@ public class M3UPlaylistProcessorTest {
             add("M:\\Temp\\File3.mp3");
         }};
 
-        PowerMockito.mockStatic(Files.class);
-        Mockito.when(Files.readAllLines(p, StandardCharsets.ISO_8859_1)).thenReturn(lines);
+        try (BufferedWriter bw = new BufferedWriter(new FileWriter(inFile))) {
+            for (String line : lines) {
+                bw.write(line);
+                bw.newLine();
+            }
+        }
+        Path p = inFile.toPath();
 
         M3UPlaylistProcessor processor = new M3UPlaylistProcessor();
         List<String> extracted = processor.extractURIs(p);
@@ -68,7 +75,7 @@ public class M3UPlaylistProcessorTest {
 
     @Test
     public void testWithNoInfoEntries() throws Exception {
-        Path p = Mockito.mock(Path.class);
+        File inFile = temporaryFolder.newFile("testIn.m3u");
 
         List<String> lines = new ArrayList<String>() {{
             add("#EXTM3U");
@@ -77,8 +84,13 @@ public class M3UPlaylistProcessorTest {
             add("M:\\Temp\\File3.mp3");
         }};
 
-        PowerMockito.mockStatic(Files.class);
-        Mockito.when(Files.readAllLines(p, StandardCharsets.ISO_8859_1)).thenReturn(lines);
+        try (BufferedWriter bw = new BufferedWriter(new FileWriter(inFile))) {
+            for (String line : lines) {
+                bw.write(line);
+                bw.newLine();
+            }
+        }
+        Path p = inFile.toPath();
 
         M3UPlaylistProcessor processor = new M3UPlaylistProcessor();
         List<String> extracted = processor.extractURIs(p);
@@ -88,15 +100,20 @@ public class M3UPlaylistProcessorTest {
 
     @Test
     public void testWithNoM3UHeader() throws Exception {
-        Path p = Mockito.mock(Path.class);
+        File inFile = temporaryFolder.newFile("testIn.m3u");
 
         List<String> lines = new ArrayList<String>() {{
             add("#EXTINF A Great Band - That Song You Remember");
             add("M:\\Temp\\File.mp3");
         }};
 
-        PowerMockito.mockStatic(Files.class);
-        Mockito.when(Files.readAllLines(p, StandardCharsets.ISO_8859_1)).thenReturn(lines);
+        try (BufferedWriter bw = new BufferedWriter(new FileWriter(inFile))) {
+            for (String line : lines) {
+                bw.write(line);
+                bw.newLine();
+            }
+        }
+        Path p = inFile.toPath();
 
         M3UPlaylistProcessor processor = new M3UPlaylistProcessor();
         List<String> extracted = processor.extractURIs(p);

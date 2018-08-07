@@ -26,14 +26,16 @@ public class CopyFileService {
 			if (!Files.isWritable(outPath)) {
 				throw new IOException("Cannot write to: " + outPath);
 			}
-			// This STILL needs to be a prompt for the GUI.
-			System.out.print("Overwrite existing file " + outPath.getFileName() + "? (Y/N): ");
+			// TODO - Add this functionality to the GUI. Until then, files will be overwritten!
+            /*
+            System.out.print("Overwrite existing file " + outPath.getFileName() + "? (Y/N): ");
 			System.out.flush();
 			BufferedReader promptIn = new BufferedReader(new InputStreamReader(System.in));
 			String response = promptIn.readLine();
 			if (!response.toUpperCase().equals("Y")) {
 				throw new IOException("FileCopy: Existing file " + outPath.getFileName() + " was not overwritten");
 			}
+			*/
 		} else {
 			Path parentDirectory = outPath.getParent();
 			if (!Files.exists(parentDirectory)) {
@@ -51,11 +53,12 @@ public class CopyFileService {
 	}
 
 	/**
-	 * Performs verifications as follows: 1. Verfies that a file or directory exists
+	 * Performs verifications as follows:
+	 * 1. Verfies that a file or directory exists
 	 * 2. Verifies a file is a file or a directory is a directory 3. Verifies that a
 	 * file/directory can be read from or written to
 	 * 
-	 * @param aFile
+	 * @param aPath
 	 *            - file/directory to verify
 	 * @param indFileDir
 	 *            - indicates if aFile is a file or directory
