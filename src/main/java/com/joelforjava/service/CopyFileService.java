@@ -20,12 +20,11 @@ public class CopyFileService {
 			return;
 		}
 
-		verifyFile(inPath, FILE_TYPE, READ_FILE);
+		isFile(inPath);
+		canRead(inPath);
 
 		if (Files.exists(outPath)) {
-			if (!Files.isWritable(outPath)) {
-				throw new IOException("Cannot write to: " + outPath);
-			}
+			canWrite(outPath);
 			// TODO - Add this functionality to the GUI. Until then, files will be overwritten!
             /*
             System.out.print("Overwrite existing file " + outPath.getFileName() + "? (Y/N): ");
@@ -45,68 +44,52 @@ public class CopyFileService {
 				}
 			}
 
-			// check for exists, isRegularFile, canWrite
-			// TODO - determine why inPath instead of outPath
-			verifyFile(inPath, FILE_TYPE, WRITE_FILE);
 		}
 		Files.copy(inPath, outPath, COPY_ATTRIBUTES, REPLACE_EXISTING);
 	}
 
 	/**
-	 * Performs verifications as follows:
-	 * 1. Verfies that a file or directory exists
-	 * 2. Verifies a file is a file or a directory is a directory 3. Verifies that a
-	 * file/directory can be read from or written to
+	 * Checks to see if a Path is an actual file.
 	 * 
-	 * @param aPath
-	 *            - file/directory to verify
-	 * @param indFileDir
-	 *            - indicates if aFile is a file or directory
-	 * @param indReadWrite
-	 *            - indicates if read or write functionality should be checked
-	 * @return
-	 * @throws java.io.IOException
+	 * @param aPath - the path we wish to check
+	 * @return true if the path is a file
+	 * @throws IOException when the path is not a file
 	 */
-	private static boolean verifyFile(Path aPath, String indFileDir, String indReadWrite) throws IOException {
-		if (!Files.exists(aPath)) {
+	private static boolean isFile(Path aPath) throws IOException {
+		if (!Files.isRegularFile(aPath)) {
 			throw new IOException("File Verification: " + aPath.getFileName() + " does not exist");
 		}
-
-		switch (indFileDir) {
-		case FILE_TYPE:
-			if (!Files.isRegularFile(aPath)) {
-				throw new IOException("File Verification: " + aPath.getFileName() + " does not exist");
-			}
-			break;
-		case DIR_TYPE:
-			if (!Files.isDirectory(aPath)) {
-				throw new IOException("Directory Verification: " + aPath.getFileName() + " does not exist");
-			}
-			break;
+		return true;
+	}
+	
+	/**
+	 * Checks to see if a file represented by a Path can be read.
+	 * 
+	 * @param aPath - the path we wish to check
+	 * @return true if the path can be read
+	 * @throws IOException when the path cannot be read
+	 */
+	private static boolean canRead(Path aPath) throws IOException {
+		if (!Files.isReadable(aPath)) {
+			throw new IOException("File Verification: Cannot read file " + aPath.getFileName());
 		}
-
-		switch (indReadWrite) {
-		case READ_FILE:
-			if (!Files.isReadable(aPath)) {
-				throw new IOException("File Verification: Cannot read file " + aPath.getFileName());
-			}
-			break;
-		case WRITE_FILE:
-			if (!Files.isWritable(aPath)) {
-				throw new IOException("File Verification: Cannot write to file " + aPath.getFileName());
-			}
-			break;
-
+		return true;
+	}
+	
+	/**
+	 * Checks to see if a file represented by a Path can be written.
+	 * 
+	 * @param aPath - the path we wish to check
+	 * @return true if the path can be written
+	 * @throws IOException when the path cannot be written
+	 */
+	private static boolean canWrite(Path aPath) throws IOException {
+		if (!Files.isWritable(aPath)) {
+			throw new IOException("File Verification: Cannot write to file " + aPath.getFileName());
 		}
 		return true;
 	}
 
 	private static final Logger LOGGER = Logger.getLogger(CopyFileService.class.getName());
-
-	private static final String READ_FILE = "R";
-	private static final String WRITE_FILE = "W";
-
-	private static final String DIR_TYPE = "D";
-	private static final String FILE_TYPE = "F";
 
 }
