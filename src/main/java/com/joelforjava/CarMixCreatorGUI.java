@@ -23,7 +23,7 @@ import javax.swing.JFileChooser;
 import javax.swing.JFrame;
 import javax.swing.filechooser.FileFilter;
 import javax.swing.filechooser.FileNameExtensionFilter;
-import javax.xml.ws.Action;
+//import javax.xml.ws.Action;
 
 import org.farng.mp3.MP3File;
 import org.farng.mp3.TagException;
@@ -45,7 +45,7 @@ public class CarMixCreatorGUI extends javax.swing.JFrame {
         initComponents();
     }
 
-  @Action
+//  @Action
   public void selectPlaylistFile() {
     JFrame mainFrame = this;
     JFileChooser fileopen = new JFileChooser();
@@ -62,7 +62,7 @@ public class CarMixCreatorGUI extends javax.swing.JFrame {
     }
   }
 
-  @Action
+//  @Action
   public void selectDestinationDirectory() {
     JFrame mainFrame = this;
     JFileChooser fileopen = new JFileChooser();
@@ -84,7 +84,7 @@ public class CarMixCreatorGUI extends javax.swing.JFrame {
     }
   }
 
-  @Action
+//  @Action
   public void copyFilesToDestination() {
     if(strDestDirectoryName == null || "".equals(strDestDirectoryName)) {
       // throw alert up
