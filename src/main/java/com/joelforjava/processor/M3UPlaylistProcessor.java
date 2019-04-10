@@ -12,6 +12,8 @@ import java.util.logging.Logger;
 
 import org.apache.commons.lang3.StringUtils;
 
+import com.joelforjava.model.MusicFileData;
+
 public class M3UPlaylistProcessor {
 
 	public List<String> extractURIs(Path path) {
@@ -31,6 +33,7 @@ public class M3UPlaylistProcessor {
 					continue;
 					// processExtraInfo(s);
 				} else {
+					MusicFileData data = new MusicFileData(s);
 					extractedUris.add(s);
 				}
 			}

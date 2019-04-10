@@ -24,11 +24,8 @@ import javax.swing.JFrame;
 import javax.swing.filechooser.FileFilter;
 import javax.swing.filechooser.FileNameExtensionFilter;
 
-import org.farng.mp3.MP3File;
-import org.farng.mp3.TagException;
-import org.farng.mp3.id3.ID3v1;
-
 import com.joelforjava.processor.M3UPlaylistProcessor;
+import com.joelforjava.processor.MP3DataExtractor;
 import com.joelforjava.service.CopyFileService;
 
 /**
@@ -41,6 +38,7 @@ public class CarMixCreatorGUI extends javax.swing.JFrame {
     public CarMixCreatorGUI() {
     	copyService = new CopyFileService();
     	playlistProcessor = new M3UPlaylistProcessor();
+    	musicDataExtractor = new MP3DataExtractor();
         initComponents();
     }
 
@@ -118,10 +116,7 @@ public class CarMixCreatorGUI extends javax.swing.JFrame {
           String newFileName = this.getStrDestDirectoryName() + fileName;
           try {
               if (usingArtistName) {
-                  MP3File mp3File = new MP3File(source.toFile(), false);
-                  ID3v1 tag = mp3File.getID3v1Tag();
-                  artistName = tag.getArtist();
-
+                  artistName = musicDataExtractor.extractArtist(source);
                   newFileName = this.getStrDestDirectoryName() + artistName + "\\" + fileName;
               }
               Path target = Paths.get(newFileName);
@@ -129,7 +124,7 @@ public class CarMixCreatorGUI extends javax.swing.JFrame {
               String strLogInfo = "Copied: " + strLine + "\n to " + newFileName;
               setProgressInfoText(strLogInfo);
               LOGGER.log(Level.INFO, strLogInfo);
-          }catch (TagException | IOException ex) {
+          }catch (IOException ex) {
               // Display new error message
               ex.getMessage();
               LOGGER.log(Level.SEVERE, null, ex);
@@ -327,6 +322,8 @@ public class CarMixCreatorGUI extends javax.swing.JFrame {
 	private final CopyFileService copyService;
 	
 	private final M3UPlaylistProcessor playlistProcessor;
+	
+	private final MP3DataExtractor musicDataExtractor;
 	
     public enum Status {
         INVALID_HEADER,
