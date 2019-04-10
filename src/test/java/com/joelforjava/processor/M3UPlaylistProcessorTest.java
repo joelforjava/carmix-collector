@@ -1,5 +1,6 @@
 package com.joelforjava.processor;
 
+import com.joelforjava.model.MusicFileData;
 import org.junit.Assert;
 import org.junit.Rule;
 import org.junit.Test;
@@ -40,7 +41,7 @@ public class M3UPlaylistProcessorTest {
         Path p = inFile.toPath();
 
         M3UPlaylistProcessor processor = new M3UPlaylistProcessor();
-        List<String> extracted = processor.extractURIs(p);
+        List<MusicFileData> extracted = processor.process(p);
 
         Assert.assertEquals(1, extracted.size());
     }
@@ -68,7 +69,7 @@ public class M3UPlaylistProcessorTest {
         Path p = inFile.toPath();
 
         M3UPlaylistProcessor processor = new M3UPlaylistProcessor();
-        List<String> extracted = processor.extractURIs(p);
+        List<MusicFileData> extracted = processor.process(p);
 
         Assert.assertEquals(3, extracted.size());
     }
@@ -93,7 +94,7 @@ public class M3UPlaylistProcessorTest {
         Path p = inFile.toPath();
 
         M3UPlaylistProcessor processor = new M3UPlaylistProcessor();
-        List<String> extracted = processor.extractURIs(p);
+        List<MusicFileData> extracted = processor.process(p);
 
         Assert.assertEquals(3, extracted.size());
     }
@@ -116,7 +117,7 @@ public class M3UPlaylistProcessorTest {
         Path p = inFile.toPath();
 
         M3UPlaylistProcessor processor = new M3UPlaylistProcessor();
-        List<String> extracted = processor.extractURIs(p);
+        List<MusicFileData> extracted = processor.process(p);
 
         Assert.assertTrue(extracted.isEmpty());
     }
@@ -125,6 +126,6 @@ public class M3UPlaylistProcessorTest {
     public void testWithNullPath() {
         M3UPlaylistProcessor processor = new M3UPlaylistProcessor();
         expectedException.expect(NullPointerException.class);
-        processor.extractURIs(null);
+        processor.process(null);
     }
 }

@@ -24,6 +24,7 @@ import javax.swing.JFrame;
 import javax.swing.filechooser.FileFilter;
 import javax.swing.filechooser.FileNameExtensionFilter;
 
+import com.joelforjava.model.MusicFileData;
 import com.joelforjava.processor.M3UPlaylistProcessor;
 import com.joelforjava.processor.MP3DataExtractor;
 import com.joelforjava.service.CopyFileService;
@@ -98,9 +99,9 @@ public class CarMixCreatorGUI extends javax.swing.JFrame {
   };
 
   private Status processPlaylist(Path path) {
-	List<String> lines = playlistProcessor.extractURIs(path);
-	for (String line : lines) {
-		processTrackURL(line);
+	List<MusicFileData> musicFileData = playlistProcessor.process(path);
+	for (MusicFileData entry : musicFileData) {
+		processTrackURL(entry.getUri());
 	}
     return Status.PROC_SUCCESSFULLY;
 	

@@ -16,8 +16,8 @@ import com.joelforjava.model.MusicFileData;
 
 public class M3UPlaylistProcessor {
 
-	public List<String> extractURIs(Path path) {
-		List<String> extractedUris = new ArrayList<>();
+	public List<MusicFileData> process(Path path) {
+		List<MusicFileData> extractedUris = new ArrayList<>();
 		try {
 			List<String> lines = Files.readAllLines(path, StandardCharsets.ISO_8859_1);
 			String firstLine = lines.remove(0);
@@ -34,7 +34,7 @@ public class M3UPlaylistProcessor {
 					// processExtraInfo(s);
 				} else {
 					MusicFileData data = new MusicFileData(s);
-					extractedUris.add(s);
+					extractedUris.add(data);
 				}
 			}
 		} catch (IOException e) {
