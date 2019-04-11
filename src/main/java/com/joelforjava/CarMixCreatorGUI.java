@@ -28,121 +28,127 @@ import com.joelforjava.model.MusicFileData;
 import com.joelforjava.processor.M3UPlaylistProcessor;
 import com.joelforjava.processor.MP3DataExtractor;
 import com.joelforjava.service.CopyFileService;
+import org.apache.commons.lang3.StringUtils;
 
 /**
- *
  * @author joel_c
  */
 public class CarMixCreatorGUI extends javax.swing.JFrame {
 
-	/** Creates new form CarMixCreatorGUI */
+    /**
+     * Creates new form CarMixCreatorGUI
+     */
     public CarMixCreatorGUI() {
-    	copyService = new CopyFileService();
-    	playlistProcessor = new M3UPlaylistProcessor();
-    	musicDataExtractor = new MP3DataExtractor();
+        copyService = new CopyFileService();
+        playlistProcessor = new M3UPlaylistProcessor();
+        musicDataExtractor = new MP3DataExtractor();
         initComponents();
     }
 
-  public void selectPlaylistFile() {
-    JFrame mainFrame = this;
-    JFileChooser fileopen = new JFileChooser();
-    FileFilter filter = new FileNameExtensionFilter("M3U files", "m3u");
-    fileopen.addChoosableFileFilter(filter);
+    public void selectPlaylistFile() {
+        JFrame mainFrame = this;
+        JFileChooser fileChooser = new JFileChooser();
+        FileFilter filter = new FileNameExtensionFilter(FILE_EXTENSION_DESCRIPTION, PERMITTED_EXTENSIONS);
+        fileChooser.addChoosableFileFilter(filter);
 
-    int ret = fileopen.showDialog(mainFrame, "Open file");
+        int ret = fileChooser.showDialog(mainFrame, DIALOG_SELECT_PLAYLIST_BUTTON_TEXT);
 
-    if (ret == JFileChooser.APPROVE_OPTION) {
-      File file = fileopen.getSelectedFile();
-      m3uFileNameField.setText(file.getAbsolutePath());
-      this.setStrPlaylistFileName(m3uFileNameField.getText());
-      System.out.println(file);
-    }
-  }
-
-  public void selectDestinationDirectory() {
-    JFrame mainFrame = this;
-    JFileChooser fileopen = new JFileChooser();
-    fileopen.setFileSelectionMode(JFileChooser.DIRECTORIES_ONLY);
-
-    int ret = fileopen.showDialog(mainFrame, "Select Directory");
-
-    if (ret == JFileChooser.APPROVE_OPTION) {
-      File file = fileopen.getSelectedFile();
-      String strDestinationPath = file.getAbsolutePath();
-      if (!strDestinationPath.endsWith("\\")) {
-          StringBuffer strBuffer = new StringBuffer(strDestinationPath);
-          strBuffer.append("\\");
-          strDestinationPath = strBuffer.toString();
-      }
-      destinationField.setText(strDestinationPath);
-      this.setStrDestDirectoryName(destinationField.getText());
-      System.out.println(file);
-    }
-  }
-
-//  @Action
-  public void copyFilesToDestination() {
-    if(strDestDirectoryName == null || "".equals(strDestDirectoryName)) {
-      // throw alert up
-      //showDirErrorBox();
-    }
-    if (strPlaylistFileName == null || "".equals(strPlaylistFileName)) {
-      // throw alert up
-      //showFileErrorBox();
+        if (ret == JFileChooser.APPROVE_OPTION) {
+            File file = fileChooser.getSelectedFile();
+            m3uFileNameField.setText(file.getAbsolutePath());
+            this.setStrPlaylistFileName(m3uFileNameField.getText());
+            System.out.println(file);
+        }
     }
 
-    Path playlistPath = Paths.get(strPlaylistFileName);
-    Status status = processPlaylist(playlistPath);
-    if (status == Status.PROC_SUCCESSFULLY) {
-      //showAboutBox();
-    }
-  };
+    public void selectDestinationDirectory() {
+        JFrame mainFrame = this;
+        JFileChooser fileChooser = new JFileChooser();
+        fileChooser.setFileSelectionMode(JFileChooser.DIRECTORIES_ONLY);
 
-  private Status processPlaylist(Path path) {
-	List<MusicFileData> musicFileData = playlistProcessor.process(path);
-	for (MusicFileData entry : musicFileData) {
-		processTrackURL(entry.getUri());
-	}
-    return Status.PROC_SUCCESSFULLY;
-	
-  }
-  
-  private void processTrackURL(String strLine) {
-	  Path source = Paths.get(strLine);
-      if (Files.exists(source)) {
-          // do stuff
-          String albumName = "";
-          String artistName = "";
-          String fileName = source.getFileName().toString();
-          String newFileName = this.getStrDestDirectoryName() + fileName;
-          try {
-              if (usingArtistName) {
-                  artistName = musicDataExtractor.extractArtist(source);
-                  newFileName = this.getStrDestDirectoryName() + artistName + "\\" + fileName;
-              }
-              Path target = Paths.get(newFileName);
-              copyService.copy(source, target);
-              String strLogInfo = "Copied: " + strLine + "\n to " + newFileName;
-              setProgressInfoText(strLogInfo);
-              LOGGER.log(Level.INFO, strLogInfo);
-          }catch (IOException ex) {
-              // Display new error message
-              ex.getMessage();
-              LOGGER.log(Level.SEVERE, null, ex);
-          }
-      } else {
-        String strLogWarning = "File not found! - " + strLine;
-        LOGGER.log(Level.WARNING, strLogWarning);
-      }
-  }
-    
-    /** This method is called from within the constructor to
+        int ret = fileChooser.showDialog(mainFrame, DIALOG_SELECT_DESTINATION_BUTTON_TEXT);
+
+        if (ret == JFileChooser.APPROVE_OPTION) {
+            File file = fileChooser.getSelectedFile();
+            String strDestinationPath = file.getAbsolutePath();
+            if (!strDestinationPath.endsWith(FILE_SEPARATOR)) {
+                strDestinationPath = strDestinationPath + FILE_SEPARATOR;
+            }
+            destinationField.setText(strDestinationPath);
+            this.setStrDestDirectoryName(destinationField.getText());
+            System.out.println(file);
+        }
+    }
+
+    private void copyFilesToDestination() {
+        String destDirectoryName = this.getStrDestDirectoryName();
+        if (StringUtils.isBlank(destDirectoryName)) {
+            // throw alert up
+            //showDirErrorBox();
+            return;
+        }
+
+        String playlistFileName = this.getStrPlaylistFileName();
+        if (StringUtils.isBlank(playlistFileName)) {
+            // throw alert up
+            //showFileErrorBox();
+            return;
+        }
+
+        Path playlistPath = Paths.get(playlistFileName);
+        Status status = processPlaylist(playlistPath);
+        if (status == Status.PROC_SUCCESSFULLY) {
+            //showAboutBox();
+            setProgressInfoText(PROGRESS_INFO_COMPLETE_LABEL_TEXT);
+        }
+    }
+
+    private Status processPlaylist(Path path) {
+        List<MusicFileData> musicFileData = playlistProcessor.process(path);
+        for (MusicFileData entry : musicFileData) {
+            processTrackURL(entry.getUri());
+        }
+        return Status.PROC_SUCCESSFULLY;
+
+    }
+
+    private void processTrackURL(String strLine) {
+        Path source = Paths.get(strLine);
+        if (Files.exists(source)) {
+            try {
+                final String newFileName = generateDestinationFileName(source);
+                Path target = Paths.get(newFileName);
+                copyService.copy(source, target);
+                String strLogInfo = "Copied: " + strLine + "\n to " + newFileName;
+                setProgressInfoText(strLogInfo);
+                LOGGER.log(Level.INFO, strLogInfo);
+            } catch (IOException ex) {
+                LOGGER.log(Level.SEVERE, null, ex);
+            }
+        } else {
+            String strLogWarning = "File not found! - " + strLine;
+            LOGGER.log(Level.WARNING, strLogWarning);
+        }
+    }
+
+    private String generateDestinationFileName(Path source) {
+        String fileName = source.getFileName().toString();
+        final String newFileName;
+        if (this.isUsingArtistName()) {
+            String artistName = musicDataExtractor.extractArtist(source);
+            newFileName = this.getStrDestDirectoryName() + artistName + FILE_SEPARATOR + fileName;
+        } else {
+            newFileName = this.getStrDestDirectoryName() + fileName;
+        }
+        return newFileName;
+    }
+
+    /**
+     * This method is called from within the constructor to
      * initialize the form.
      * WARNING: Do NOT modify this code. The content of this method is
      * always regenerated by the Form Editor.
      */
-    @SuppressWarnings("unchecked")
-    // <editor-fold defaultstate="collapsed" desc="Generated Code">//GEN-BEGIN:initComponents
     private void initComponents() {
 
         m3uFileNameField = new javax.swing.JTextField();
@@ -161,31 +167,31 @@ public class CarMixCreatorGUI extends javax.swing.JFrame {
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
 
-        m3uFileLabel.setText("M3U File:");
+        m3uFileLabel.setText(PLAYLIST_LABEL_TEXT);
 
-        destinationLabel.setText("Destination:");
+        destinationLabel.setText(DESTINATION_LABEL_TEXT);
 
         progressInfoTextField.setBackground(new java.awt.Color(226, 226, 226));
-        progressInfoTextField.setText("Make Selections, then click 'Copy Files'");
+        progressInfoTextField.setText(PROGRESS_INFO_LABEL_TEXT);
         progressInfoTextField.setBorder(null);
 
-        m3uFileSelectButton.setText("Select");
+        m3uFileSelectButton.setText(MAIN_PLAYLIST_SELECT_BUTTON_TEXT);
         m3uFileSelectButton.addActionListener(evt -> selectPlaylistFile());
 
-        selectDestinationButton.setText("Select");
+        selectDestinationButton.setText(MAIN_DESTINATION_SELECT_BUTTON_TEXT);
         selectDestinationButton.addActionListener(evt -> selectDestinationDirectory());
 
-        copyFilesButton.setText("Copy Files");
+        copyFilesButton.setText(COPY_FILES_BUTTON_TEXT);
         copyFilesButton.addActionListener(evt -> copyFilesToDestination());
 
-        usingArtistCheckbox.setText("Artist");
-        usingArtistCheckbox.setToolTipText("Use Artist Name");
-        usingArtistCheckbox.addActionListener(evt -> usingArtistCheckboxActionPerformed(evt));
+        usingArtistCheckbox.setText(USE_ARTIST_LABEL_TEXT);
+        usingArtistCheckbox.setToolTipText(USE_ARTIST_TOOLTIP_TEXT);
+        usingArtistCheckbox.addActionListener(this::usingArtistCheckboxActionPerformed);
 
-        jMenu1.setText("File");
+        jMenu1.setText(FILE_MENU_LABEL);
         jMenuBar1.add(jMenu1);
 
-        jMenu2.setText("Edit");
+        jMenu2.setText(EDIT_MENU_LABEL);
         jMenuBar1.add(jMenu2);
 
         setJMenuBar(jMenuBar1);
@@ -193,109 +199,108 @@ public class CarMixCreatorGUI extends javax.swing.JFrame {
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
         getContentPane().setLayout(layout);
         layout.setHorizontalGroup(
-            layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(layout.createSequentialGroup()
-                .addContainerGap()
-                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addGroup(layout.createSequentialGroup()
-                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                            .addComponent(destinationLabel)
-                            .addComponent(m3uFileLabel))
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING, false)
-                            .addComponent(m3uFileNameField, javax.swing.GroupLayout.Alignment.LEADING)
-                            .addComponent(destinationField, javax.swing.GroupLayout.Alignment.LEADING, javax.swing.GroupLayout.DEFAULT_SIZE, 166, Short.MAX_VALUE)
-                            .addComponent(usingArtistCheckbox, javax.swing.GroupLayout.Alignment.LEADING)))
-                    .addComponent(progressInfoTextField, javax.swing.GroupLayout.PREFERRED_SIZE, 220, javax.swing.GroupLayout.PREFERRED_SIZE))
-                .addGap(18, 18, 18)
-                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addComponent(copyFilesButton)
-                    .addComponent(copyStatusProgressBar, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(m3uFileSelectButton)
-                    .addComponent(selectDestinationButton))
-                .addContainerGap())
+                layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                        .addGroup(layout.createSequentialGroup()
+                                .addContainerGap()
+                                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                                        .addGroup(layout.createSequentialGroup()
+                                                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                                                        .addComponent(destinationLabel)
+                                                        .addComponent(m3uFileLabel))
+                                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                                                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING, false)
+                                                        .addComponent(m3uFileNameField, javax.swing.GroupLayout.Alignment.LEADING)
+                                                        .addComponent(destinationField, javax.swing.GroupLayout.Alignment.LEADING, javax.swing.GroupLayout.DEFAULT_SIZE, 166, Short.MAX_VALUE)
+                                                        .addComponent(usingArtistCheckbox, javax.swing.GroupLayout.Alignment.LEADING)))
+                                        .addComponent(progressInfoTextField, javax.swing.GroupLayout.PREFERRED_SIZE, 220, javax.swing.GroupLayout.PREFERRED_SIZE))
+                                .addGap(18, 18, 18)
+                                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                                        .addComponent(copyFilesButton)
+                                        .addComponent(copyStatusProgressBar, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                        .addComponent(m3uFileSelectButton)
+                                        .addComponent(selectDestinationButton))
+                                .addContainerGap())
         );
         layout.setVerticalGroup(
-            layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(layout.createSequentialGroup()
-                .addGap(39, 39, 39)
-                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                    .addComponent(m3uFileNameField, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(m3uFileLabel)
-                    .addComponent(m3uFileSelectButton))
-                .addGap(18, 18, 18)
-                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                    .addComponent(destinationField, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(destinationLabel)
-                    .addComponent(selectDestinationButton))
-                .addGap(46, 46, 46)
-                .addComponent(usingArtistCheckbox)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 50, Short.MAX_VALUE)
-                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
-                    .addGroup(layout.createSequentialGroup()
-                        .addComponent(copyFilesButton)
-                        .addGap(18, 18, 18)
-                        .addComponent(copyStatusProgressBar, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
-                    .addComponent(progressInfoTextField, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
-                .addContainerGap())
+                layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                        .addGroup(layout.createSequentialGroup()
+                                .addGap(39, 39, 39)
+                                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                                        .addComponent(m3uFileNameField, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                        .addComponent(m3uFileLabel)
+                                        .addComponent(m3uFileSelectButton))
+                                .addGap(18, 18, 18)
+                                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                                        .addComponent(destinationField, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                        .addComponent(destinationLabel)
+                                        .addComponent(selectDestinationButton))
+                                .addGap(46, 46, 46)
+                                .addComponent(usingArtistCheckbox)
+                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 50, Short.MAX_VALUE)
+                                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
+                                        .addGroup(layout.createSequentialGroup()
+                                                .addComponent(copyFilesButton)
+                                                .addGap(18, 18, 18)
+                                                .addComponent(copyStatusProgressBar, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                                        .addComponent(progressInfoTextField, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                                .addContainerGap())
         );
 
         pack();
-    }// </editor-fold>//GEN-END:initComponents
+    }
 
-    private void usingArtistCheckboxActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_usingArtistCheckboxActionPerformed
+    private void usingArtistCheckboxActionPerformed(java.awt.event.ActionEvent evt) {
         // TODO add your handling code here:
         if (usingArtistCheckbox.isSelected()) {
             setUsingArtistName(true);
         } else {
             setUsingArtistName(false);
         }
-    }//GEN-LAST:event_usingArtistCheckboxActionPerformed
+    }
 
     private void setProgressInfoText(String text) {
         progressInfoTextField.setText(text);
     }
 
+    public String getStrDestDirectoryName() {
+        return strDestDirectoryName;
+    }
+
+    public void setStrDestDirectoryName(String strDestDirectoryName) {
+        this.strDestDirectoryName = strDestDirectoryName;
+    }
+
+    public String getStrPlaylistFileName() {
+        return strPlaylistFileName;
+    }
+
+    public void setStrPlaylistFileName(String strPlaylistFileName) {
+        this.strPlaylistFileName = strPlaylistFileName;
+    }
+
+    public boolean isUsingArtistName() {
+        return usingArtistName;
+    }
+
+    public void setUsingArtistName(boolean usingArtistName) {
+        this.usingArtistName = usingArtistName;
+    }
+
+    public boolean isUsingAlbumName() {
+        return usingAlbumName;
+    }
+
+    public void setUsingAlbumName(boolean usingAlbumName) {
+        this.usingAlbumName = usingAlbumName;
+    }
+
     /**
-    * @param args the command line arguments
-    */
-    public static void main(String args[]) {
+     * @param args the command line arguments
+     */
+    public static void main(String[] args) {
         java.awt.EventQueue.invokeLater(() -> new CarMixCreatorGUI().setVisible(true));
     }
 
-  public String getStrDestDirectoryName() {
-    return strDestDirectoryName;
-  }
-
-  public void setStrDestDirectoryName(String strDestDirectoryName) {
-    this.strDestDirectoryName = strDestDirectoryName;
-  }
-
-  public String getStrPlaylistFileName() {
-    return strPlaylistFileName;
-  }
-
-  public void setStrPlaylistFileName(String strPlaylistFileName) {
-    this.strPlaylistFileName = strPlaylistFileName;
-  }
-
-  public boolean isUsingArtistName() {
-      return usingArtistName;
-  }
-
-  public void setUsingArtistName(boolean usingArtistName) {
-      this.usingArtistName = usingArtistName;
-  }
-
-  public boolean isUsingAlbumName() {
-      return usingAlbumName;
-  }
-
-  public void setUsingAlbumName(boolean usingAlbumName) {
-      this.usingAlbumName = usingAlbumName;
-  }
-
-    // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JButton copyFilesButton;
     private javax.swing.JProgressBar copyStatusProgressBar;
     private javax.swing.JTextField destinationField;
@@ -309,8 +314,6 @@ public class CarMixCreatorGUI extends javax.swing.JFrame {
     private javax.swing.JTextField progressInfoTextField;
     private javax.swing.JButton selectDestinationButton;
     private javax.swing.JCheckBox usingArtistCheckbox;
-    // End of variables declaration//GEN-END:variables
-
 
     private String strPlaylistFileName;
     private String strDestDirectoryName;
@@ -318,16 +321,49 @@ public class CarMixCreatorGUI extends javax.swing.JFrame {
     private boolean usingArtistName;
     private boolean usingAlbumName;
 
+    private final CopyFileService copyService;
+
+    private final M3UPlaylistProcessor playlistProcessor;
+
+    private final MP3DataExtractor musicDataExtractor;
+
     private static final Logger LOGGER = Logger.getLogger(CarMixCreatorGUI.class.getName());
 
-	private final CopyFileService copyService;
-	
-	private final M3UPlaylistProcessor playlistProcessor;
-	
-	private final MP3DataExtractor musicDataExtractor;
-	
+    private static final String FILE_SEPARATOR = File.separator;
+
+    private static final String FILE_EXTENSION_DESCRIPTION = "M3U files";
+
+    private static final String[] PERMITTED_EXTENSIONS = { "m3u" };
+
+    private static final String DIALOG_SELECT_PLAYLIST_BUTTON_TEXT = "Open file";
+
+    private static final String DIALOG_SELECT_DESTINATION_BUTTON_TEXT = "Select Directory";
+
+    private static final String PLAYLIST_LABEL_TEXT = "M3U File:";
+
+    private static final String DESTINATION_LABEL_TEXT = "Destination:";
+
+    private static final String COPY_FILES_BUTTON_TEXT = "Copy Files";
+
+    private static final String PROGRESS_INFO_LABEL_TEXT = "Make Selections, then click '" + COPY_FILES_BUTTON_TEXT + "'";
+
+    private static final String PROGRESS_INFO_COMPLETE_LABEL_TEXT = "Copying Complete!";
+
+    private static final String MAIN_PLAYLIST_SELECT_BUTTON_TEXT = "Select";
+
+    private static final String MAIN_DESTINATION_SELECT_BUTTON_TEXT = "Select";
+
+    private static final String USE_ARTIST_LABEL_TEXT = "Artist";
+
+    private static final String USE_ARTIST_TOOLTIP_TEXT = "Use Artist Name";
+
+    private static final String FILE_MENU_LABEL = "File";
+
+    private static final String EDIT_MENU_LABEL = "Edit";
+
     public enum Status {
         INVALID_HEADER,
-        PROC_SUCCESSFULLY
+        PROC_SUCCESSFULLY,
+        PROC_FAILED
     }
 }
