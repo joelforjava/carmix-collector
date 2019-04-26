@@ -40,8 +40,7 @@ public class CarMixCreatorGUI extends javax.swing.JFrame {
      */
     public CarMixCreatorGUI() {
         copyService = new CopyFileService();
-        playlistProcessor = new M3UPlaylistProcessor();
-        musicDataExtractor = new MP3DataExtractor();
+        playlistProcessor = new M3UPlaylistProcessor().withMp3DataExtractor(new MP3DataExtractor());
         initComponents();
     }
 
@@ -104,43 +103,44 @@ public class CarMixCreatorGUI extends javax.swing.JFrame {
     }
 
     private Status processPlaylist(Path path) {
-        List<MusicFileData> musicFileData = playlistProcessor.process(path);
+        List<MusicFileData> musicFileData = playlistProcessor.withExtractArtist(this.isUsingArtistName()).process(path);
         for (MusicFileData entry : musicFileData) {
-            processTrackURL(entry.getUri());
+            processTrackData(entry);
         }
         return Status.PROC_SUCCESSFULLY;
 
     }
 
-    private void processTrackURL(String strLine) {
-        Path source = Paths.get(strLine);
+    private void processTrackData(MusicFileData fileData) {
+        String fileDataUri = fileData.getUri();
+        Path source = Paths.get(fileDataUri);
         if (Files.exists(source)) {
             try {
-                final String newFileName = generateDestinationFileName(source);
+                final String newFileName = generateDestinationFileUri(source, fileData);
                 Path target = Paths.get(newFileName);
                 copyService.copy(source, target);
-                String strLogInfo = "Copied: " + strLine + "\n to " + newFileName;
+                String strLogInfo = "Copied: " + fileDataUri + "\n to " + newFileName;
                 setProgressInfoText(strLogInfo);
                 LOGGER.log(Level.INFO, strLogInfo);
             } catch (IOException ex) {
                 LOGGER.log(Level.SEVERE, null, ex);
             }
         } else {
-            String strLogWarning = "File not found! - " + strLine;
+            String strLogWarning = "File not found! - " + fileDataUri;
             LOGGER.log(Level.WARNING, strLogWarning);
         }
     }
 
-    private String generateDestinationFileName(Path source) {
+    private String generateDestinationFileUri(Path source, MusicFileData fileData) {
         String fileName = source.getFileName().toString();
-        final String newFileName;
+        final String newFIleUri;
         if (this.isUsingArtistName()) {
-            String artistName = musicDataExtractor.extractArtist(source);
-            newFileName = this.getStrDestDirectoryName() + artistName + FILE_SEPARATOR + fileName;
+            String artistName = fileData.getArtistName();
+            newFIleUri = this.getStrDestDirectoryName() + artistName + FILE_SEPARATOR + fileName;
         } else {
-            newFileName = this.getStrDestDirectoryName() + fileName;
+            newFIleUri = this.getStrDestDirectoryName() + fileName;
         }
-        return newFileName;
+        return newFIleUri;
     }
 
     /**
@@ -324,8 +324,6 @@ public class CarMixCreatorGUI extends javax.swing.JFrame {
     private final CopyFileService copyService;
 
     private final M3UPlaylistProcessor playlistProcessor;
-
-    private final MP3DataExtractor musicDataExtractor;
 
     private static final Logger LOGGER = Logger.getLogger(CarMixCreatorGUI.class.getName());
 
