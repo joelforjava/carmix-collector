@@ -33,24 +33,24 @@ import org.apache.commons.lang3.StringUtils;
 /**
  * @author joel_c
  */
-public class CarMixCreatorGUI extends javax.swing.JFrame {
+public class CarMixCreatorGUI {
 
     /**
      * Creates new form CarMixCreatorGUI
      */
     public CarMixCreatorGUI() {
+        frame = new JFrame();
         copyService = new CopyFileService();
         playlistProcessor = new M3UPlaylistProcessor().withMp3DataExtractor(new MP3DataExtractor());
         initComponents();
     }
 
-    public void selectPlaylistFile() {
-        JFrame mainFrame = this;
+    private void selectPlaylistFile() {
         JFileChooser fileChooser = new JFileChooser();
         FileFilter filter = new FileNameExtensionFilter(FILE_EXTENSION_DESCRIPTION, PERMITTED_EXTENSIONS);
         fileChooser.addChoosableFileFilter(filter);
 
-        int ret = fileChooser.showDialog(mainFrame, DIALOG_SELECT_PLAYLIST_BUTTON_TEXT);
+        int ret = fileChooser.showDialog(getFrame(), DIALOG_SELECT_PLAYLIST_BUTTON_TEXT);
 
         if (ret == JFileChooser.APPROVE_OPTION) {
             File file = fileChooser.getSelectedFile();
@@ -60,12 +60,11 @@ public class CarMixCreatorGUI extends javax.swing.JFrame {
         }
     }
 
-    public void selectDestinationDirectory() {
-        JFrame mainFrame = this;
+    private void selectDestinationDirectory() {
         JFileChooser fileChooser = new JFileChooser();
         fileChooser.setFileSelectionMode(JFileChooser.DIRECTORIES_ONLY);
 
-        int ret = fileChooser.showDialog(mainFrame, DIALOG_SELECT_DESTINATION_BUTTON_TEXT);
+        int ret = fileChooser.showDialog(getFrame(), DIALOG_SELECT_DESTINATION_BUTTON_TEXT);
 
         if (ret == JFileChooser.APPROVE_OPTION) {
             File file = fileChooser.getSelectedFile();
@@ -165,7 +164,7 @@ public class CarMixCreatorGUI extends javax.swing.JFrame {
         jMenu1 = new javax.swing.JMenu();
         jMenu2 = new javax.swing.JMenu();
 
-        setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
+        frame.setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
 
         m3uFileLabel.setText(PLAYLIST_LABEL_TEXT);
 
@@ -194,10 +193,10 @@ public class CarMixCreatorGUI extends javax.swing.JFrame {
         jMenu2.setText(EDIT_MENU_LABEL);
         jMenuBar1.add(jMenu2);
 
-        setJMenuBar(jMenuBar1);
+        frame.setJMenuBar(jMenuBar1);
 
-        javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
-        getContentPane().setLayout(layout);
+        javax.swing.GroupLayout layout = new javax.swing.GroupLayout(frame.getContentPane());
+        frame.getContentPane().setLayout(layout);
         layout.setHorizontalGroup(
                 layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                         .addGroup(layout.createSequentialGroup()
@@ -246,7 +245,7 @@ public class CarMixCreatorGUI extends javax.swing.JFrame {
                                 .addContainerGap())
         );
 
-        pack();
+        frame.pack();
     }
 
     private void usingArtistCheckboxActionPerformed(java.awt.event.ActionEvent evt) {
@@ -294,11 +293,15 @@ public class CarMixCreatorGUI extends javax.swing.JFrame {
         this.usingAlbumName = usingAlbumName;
     }
 
+    private JFrame getFrame() {
+        return this.frame;
+    }
+
     /**
      * @param args the command line arguments
      */
     public static void main(String[] args) {
-        java.awt.EventQueue.invokeLater(() -> new CarMixCreatorGUI().setVisible(true));
+        java.awt.EventQueue.invokeLater(() -> new CarMixCreatorGUI().getFrame().setVisible(true));
     }
 
     private javax.swing.JButton copyFilesButton;
@@ -324,6 +327,8 @@ public class CarMixCreatorGUI extends javax.swing.JFrame {
     private final CopyFileService copyService;
 
     private final M3UPlaylistProcessor playlistProcessor;
+
+    private final JFrame frame;
 
     private static final Logger LOGGER = Logger.getLogger(CarMixCreatorGUI.class.getName());
 
