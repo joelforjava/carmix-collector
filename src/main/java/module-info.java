@@ -11,4 +11,5 @@ module com.joelforjava.carmixcreator.gui {
 	requires java.desktop;
 	requires java.logging;
 	requires jid3lib;
+	requires jaudiotagger;
 }
