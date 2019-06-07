@@ -10,7 +10,7 @@ import org.farng.mp3.MP3File;
 import org.farng.mp3.TagException;
 import org.farng.mp3.id3.ID3v1;
 
-public class MP3DataExtractor {
+public class MP3DataExtractor implements AudioFileMetadataExtractor {
 
 	// TODO - in the future, extract everything
 	public String extractArtist(Path source) {
