@@ -19,7 +19,7 @@ public class M3UPlaylistProcessor {
 
 	private boolean extractArtist;
 
-	private MP3DataExtractor mp3DataExtractor;
+	private AudioFileMetadataExtractor dataExtractor;
 
 	public M3UPlaylistProcessor() {
 	    this(false);
@@ -49,7 +49,7 @@ public class M3UPlaylistProcessor {
 					MusicFileData data = new MusicFileData(s);
 					if (this.extractArtist) {
                         Path musicFilePath = Paths.get(s);
-					    String artistName = mp3DataExtractor.extractArtist(musicFilePath);
+					    String artistName = dataExtractor.extractArtist(musicFilePath);
 					    processedFileData.add(data.withArtistName(artistName));
                     } else {
                         processedFileData.add(data);
@@ -63,12 +63,12 @@ public class M3UPlaylistProcessor {
 		return processedFileData;
 	}
 
-	public void setMp3DataExtractor(MP3DataExtractor dataExtractor) {
-	    this.mp3DataExtractor = dataExtractor;
+	public void setDataExtractor(AudioFileMetadataExtractor dataExtractor) {
+	    this.dataExtractor = dataExtractor;
     }
 
-    public M3UPlaylistProcessor withMp3DataExtractor(MP3DataExtractor mp3DataExtractor) {
-	    setMp3DataExtractor(mp3DataExtractor);
+    public M3UPlaylistProcessor withDataExtractor(AudioFileMetadataExtractor mp3DataExtractor) {
+	    setDataExtractor(mp3DataExtractor);
 	    return this;
     }
 

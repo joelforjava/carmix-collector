@@ -8,6 +8,8 @@
   <name>carmix-collector</name>
   <url>http://maven.apache.org</url>
   <properties>
+    <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+    <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
   	<maven.compiler.source>9</maven.compiler.source>
   	<maven.compiler.target>9</maven.compiler.target>
     <powermock.version>2.0.0-beta.5</powermock.version>

@@ -41,7 +41,7 @@ public class CarMixCreatorGUI {
     public CarMixCreatorGUI() {
         frame = new JFrame();
         copyService = new CopyFileService();
-        playlistProcessor = new M3UPlaylistProcessor().withMp3DataExtractor(new MP3DataExtractor());
+        playlistProcessor = new M3UPlaylistProcessor().withDataExtractor(new MP3DataExtractor());
         initComponents();
     }
 
