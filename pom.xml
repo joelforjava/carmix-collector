@@ -21,14 +21,6 @@
       <version>2.2.5</version>
     </dependency>
 	<dependency>
-	  <groupId>org.farng.mp3</groupId>
-      <artifactId>jid3lib</artifactId>
-      <version>0.5.1</version>
-<!--       <scope>system</scope>
-	    <systemPath>${project.basedir}/src/main/resources/jid3lib-0.5.1.jar</systemPath>
- -->
-	</dependency>
-	<dependency>
 	    <groupId>org.apache.commons</groupId>
 	    <artifactId>commons-lang3</artifactId>
 	    <version>3.5</version>

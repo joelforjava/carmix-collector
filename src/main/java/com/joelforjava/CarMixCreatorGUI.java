@@ -26,7 +26,7 @@ import javax.swing.filechooser.FileNameExtensionFilter;
 
 import com.joelforjava.model.MusicFileData;
 import com.joelforjava.processor.M3UPlaylistProcessor;
-import com.joelforjava.processor.MP3DataExtractor;
+import com.joelforjava.processor.MusicFileDataExtractor;
 import com.joelforjava.service.CopyFileService;
 import org.apache.commons.lang3.StringUtils;
 
@@ -41,7 +41,7 @@ public class CarMixCreatorGUI {
     public CarMixCreatorGUI() {
         frame = new JFrame();
         copyService = new CopyFileService();
-        playlistProcessor = new M3UPlaylistProcessor().withDataExtractor(new MP3DataExtractor());
+        playlistProcessor = new M3UPlaylistProcessor().withDataExtractor(new MusicFileDataExtractor());
         initComponents();
     }
 
