@@ -1,5 +1,7 @@
 package com.joelforjava.service;
 
+import com.joelforjava.request.CopyRequest;
+
 import static java.nio.file.StandardCopyOption.COPY_ATTRIBUTES;
 import static java.nio.file.StandardCopyOption.REPLACE_EXISTING;
 
@@ -12,6 +14,12 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 public class CopyFileService {
+
+	public void copy(CopyRequest copyRequest) throws IOException {
+		// TODO - make use of the 'overwriteExisting' value
+		LOGGER.log(Level.INFO, "You set overwriteExisting to " + copyRequest.isOverwriteExisting());
+		copy(copyRequest.getInPath(), copyRequest.getOutPath());
+	}
 
 	public void copy(Path inPath, Path outPath) throws IOException {
 

@@ -4,6 +4,7 @@
 module com.joelforjava.carmixcreator.gui {
 	exports com.joelforjava;
 	exports com.joelforjava.processor;
+	exports com.joelforjava.request;
 	exports com.joelforjava.service;
 	exports com.joelforjava.model;
 

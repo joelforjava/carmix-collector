@@ -27,6 +27,7 @@ import javax.swing.filechooser.FileNameExtensionFilter;
 import com.joelforjava.model.MusicFileData;
 import com.joelforjava.processor.M3UPlaylistProcessor;
 import com.joelforjava.processor.MusicFileDataExtractor;
+import com.joelforjava.request.CopyRequest;
 import com.joelforjava.service.CopyFileService;
 import org.apache.commons.lang3.StringUtils;
 
@@ -117,7 +118,8 @@ public class CarMixCreatorGUI {
             try {
                 final String newFileName = generateDestinationFileUri(source, fileData);
                 Path target = Paths.get(newFileName);
-                copyService.copy(source, target);
+                CopyRequest request = new CopyRequest(source, target, overwriteExisting);
+                copyService.copy(request);
                 String strLogInfo = "Copied: " + fileDataUri + "\n to " + newFileName;
                 setProgressInfoText(strLogInfo);
                 LOGGER.log(Level.INFO, strLogInfo);
