@@ -11,6 +11,7 @@
 
 package com.joelforjava;
 
+import java.awt.event.ActionEvent;
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
@@ -143,24 +144,24 @@ public class CarMixCreatorGUI {
 
     private void initMenuBar() {
         jMenuBar1 = new javax.swing.JMenuBar();
-        jMenu1 = new JMenu();
-        jMenu2 = new JMenu();
-        jMenu3 = new JMenu();
+        fileMenu = new JMenu();
+        editMenu = new JMenu();
+        helpMenu = new JMenu();
 
-        jMenu1.setText(FILE_MENU_LABEL);
+        fileMenu.setText(FILE_MENU_LABEL);
         JMenuItem exitMenuItem = new JMenuItem("Exit");
         exitMenuItem.addActionListener(evt -> System.out.println("I'd close, but I don't know how to!"));
-        jMenu1.add(exitMenuItem);
-        jMenuBar1.add(jMenu1);
+        fileMenu.add(exitMenuItem);
+        jMenuBar1.add(fileMenu);
 
-        jMenu2.setText(EDIT_MENU_LABEL);
-        jMenuBar1.add(jMenu2);
+        editMenu.setText(EDIT_MENU_LABEL);
+        jMenuBar1.add(editMenu);
 
-        jMenu3.setText("Help");
+        helpMenu.setText(HELP_MENU_LABEL);
         JMenuItem aboutMenuItem = new JMenuItem("About");
-        jMenu3.add(aboutMenuItem);
+        helpMenu.add(aboutMenuItem);
 
-        jMenuBar1.add(jMenu3);
+        jMenuBar1.add(helpMenu);
 
         frame.setJMenuBar(jMenuBar1);
 
@@ -181,7 +182,8 @@ public class CarMixCreatorGUI {
         m3uFileSelectButton = new javax.swing.JButton();
         selectDestinationButton = new javax.swing.JButton();
         copyFilesButton = new javax.swing.JButton();
-        usingArtistCheckbox = new javax.swing.JCheckBox();
+        usingArtistCheckbox = new JCheckBox();
+        overwriteExistingCheckbox = new JCheckBox();
 
         initMenuBar();
 
@@ -208,6 +210,10 @@ public class CarMixCreatorGUI {
         usingArtistCheckbox.setToolTipText(USE_ARTIST_TOOLTIP_TEXT);
         usingArtistCheckbox.addActionListener(this::usingArtistCheckboxActionPerformed);
 
+        overwriteExistingCheckbox.setText(OVERWRITE_EXISTING_LABEL_TEXT);
+        overwriteExistingCheckbox.setToolTipText(OVERWRITE_EXISTING_TOOLTIP_TEXT);
+        overwriteExistingCheckbox.addActionListener(this::overwriteExistingCheckboxActionPerformed);
+
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(frame.getContentPane());
         frame.getContentPane().setLayout(layout);
         layout.setHorizontalGroup(
@@ -223,6 +229,7 @@ public class CarMixCreatorGUI {
                                                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING, false)
                                                         .addComponent(m3uFileNameField, javax.swing.GroupLayout.Alignment.LEADING)
                                                         .addComponent(destinationField, javax.swing.GroupLayout.Alignment.LEADING, javax.swing.GroupLayout.DEFAULT_SIZE, 166, Short.MAX_VALUE)
+                                                        .addComponent(overwriteExistingCheckbox, javax.swing.GroupLayout.Alignment.LEADING)
                                                         .addComponent(usingArtistCheckbox, javax.swing.GroupLayout.Alignment.LEADING)))
                                         .addComponent(progressInfoTextField, javax.swing.GroupLayout.PREFERRED_SIZE, 220, javax.swing.GroupLayout.PREFERRED_SIZE))
                                 .addGap(18, 18, 18)
@@ -247,6 +254,7 @@ public class CarMixCreatorGUI {
                                         .addComponent(destinationLabel)
                                         .addComponent(selectDestinationButton))
                                 .addGap(46, 46, 46)
+                                .addComponent(overwriteExistingCheckbox)
                                 .addComponent(usingArtistCheckbox)
                                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 50, Short.MAX_VALUE)
                                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
@@ -262,11 +270,18 @@ public class CarMixCreatorGUI {
     }
 
     private void usingArtistCheckboxActionPerformed(java.awt.event.ActionEvent evt) {
-        // TODO add your handling code here:
         if (usingArtistCheckbox.isSelected()) {
             setUsingArtistName(true);
         } else {
             setUsingArtistName(false);
+        }
+    }
+
+    private void overwriteExistingCheckboxActionPerformed(ActionEvent evt) {
+        if (overwriteExistingCheckbox.isSelected()) {
+            setOverwriteExisting(true);
+        } else {
+            setOverwriteExisting(false);
         }
     }
 
@@ -298,12 +313,12 @@ public class CarMixCreatorGUI {
         this.usingArtistName = usingArtistName;
     }
 
-    public boolean isUsingAlbumName() {
-        return usingAlbumName;
+    public boolean willOverwriteExisting() {
+        return overwriteExisting;
     }
 
-    public void setUsingAlbumName(boolean usingAlbumName) {
-        this.usingAlbumName = usingAlbumName;
+    public void setOverwriteExisting(boolean overwriteExisting) {
+        this.overwriteExisting = overwriteExisting;
     }
 
     private JFrame getFrame() {
@@ -321,22 +336,23 @@ public class CarMixCreatorGUI {
     private javax.swing.JProgressBar copyStatusProgressBar;
     private javax.swing.JTextField destinationField;
     private javax.swing.JLabel destinationLabel;
-    private JMenu jMenu1;
-    private JMenu jMenu2;
-    private JMenu jMenu3;
+    private JMenu fileMenu;
+    private JMenu editMenu;
+    private JMenu helpMenu;
     private javax.swing.JMenuBar jMenuBar1;
     private javax.swing.JLabel m3uFileLabel;
     private javax.swing.JTextField m3uFileNameField;
     private javax.swing.JButton m3uFileSelectButton;
     private javax.swing.JTextField progressInfoTextField;
     private javax.swing.JButton selectDestinationButton;
-    private javax.swing.JCheckBox usingArtistCheckbox;
+    private JCheckBox usingArtistCheckbox;
+    private JCheckBox overwriteExistingCheckbox;
 
     private String strPlaylistFileName;
     private String strDestDirectoryName;
 
     private boolean usingArtistName;
-    private boolean usingAlbumName;
+    private boolean overwriteExisting;
 
     private final CopyFileService copyService;
 
@@ -374,9 +390,15 @@ public class CarMixCreatorGUI {
 
     private static final String USE_ARTIST_TOOLTIP_TEXT = "Use Artist Name";
 
+    private static final String OVERWRITE_EXISTING_LABEL_TEXT = "Overwrite Existing";
+
+    private static final String OVERWRITE_EXISTING_TOOLTIP_TEXT = "Overwrite existing files in the destination directory";
+
     private static final String FILE_MENU_LABEL = "File";
 
     private static final String EDIT_MENU_LABEL = "Edit";
+
+    private static final String HELP_MENU_LABEL = "Help";
 
     public enum Status {
         INVALID_HEADER,
