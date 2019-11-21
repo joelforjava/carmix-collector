@@ -159,6 +159,13 @@ public class CarMixCreatorGUI {
         editMenu.setText(EDIT_MENU_LABEL);
         jMenuBar1.add(editMenu);
 
+        JMenu optionsMenu = new JMenu();
+        optionsMenu.setText("Options");
+        JMenuItem overwriteMenuItem = new JMenuItem(OVERWRITE_EXISTING_LABEL_TEXT);
+        overwriteMenuItem.setEnabled(false);
+        optionsMenu.add(overwriteMenuItem);
+        jMenuBar1.add(optionsMenu);
+
         helpMenu.setText(HELP_MENU_LABEL);
         JMenuItem aboutMenuItem = new JMenuItem("About");
         helpMenu.add(aboutMenuItem);

@@ -16,12 +16,10 @@ import java.util.logging.Logger;
 public class CopyFileService {
 
 	public void copy(CopyRequest copyRequest) throws IOException {
-		// TODO - make use of the 'overwriteExisting' value
-		LOGGER.log(Level.INFO, "You set overwriteExisting to " + copyRequest.isOverwriteExisting());
-		copy(copyRequest.getInPath(), copyRequest.getOutPath());
-	}
 
-	public void copy(Path inPath, Path outPath) throws IOException {
+		Path inPath = copyRequest.getInPath();
+		Path outPath = copyRequest.getOutPath();
+		final boolean overwriteExisting = copyRequest.isOverwriteExisting();
 
 		if (Files.exists(outPath) && Files.isSameFile(inPath, outPath)) {
 			LOGGER.log(Level.INFO, "Files are the same, no copy performed");
@@ -33,16 +31,9 @@ public class CopyFileService {
 
 		if (Files.exists(outPath)) {
 			canWrite(outPath);
-			// TODO - Add this functionality to the GUI. Until then, files will be overwritten!
-            /*
-            System.out.print("Overwrite existing file " + outPath.getFileName() + "? (Y/N): ");
-			System.out.flush();
-			BufferedReader promptIn = new BufferedReader(new InputStreamReader(System.in));
-			String response = promptIn.readLine();
-			if (!response.toUpperCase().equals("Y")) {
-				throw new IOException("FileCopy: Existing file " + outPath.getFileName() + " was not overwritten");
+			if (overwriteExisting) {
+				LOGGER.warning("File " + outPath + " will be overwritten");
 			}
-			*/
 		} else {
 			Path parentDirectory = outPath.getParent();
 			if (!Files.exists(parentDirectory)) {
