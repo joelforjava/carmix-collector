@@ -17,6 +17,7 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.Collections;
 import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -409,6 +410,14 @@ public class CarMixCreatorGUI {
 
     private static final String HELP_MENU_LABEL = "Help";
 
+    private static String OUTPUT_FORMAT = "{OUTPUT_DIR}" + FILE_SEPARATOR + "{ARTIST}" + FILE_SEPARATOR + "{SONG_NAME}";
+
+    private static List<OutputFormatTokens> requiredTokens = Collections.singletonList(OutputFormatTokens.OUTPUT_DIR);
+
+    public enum OutputFormatTokens {
+        OUTPUT_DIR, ARTIST, SONG_NAME
+        // TODO - add ALBUM_ARTIST, TRACK_NUM, and others that might be of use
+    }
     public enum Status {
         INVALID_HEADER,
         PROC_SUCCESSFULLY,

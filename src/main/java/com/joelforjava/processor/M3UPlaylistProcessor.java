@@ -29,6 +29,8 @@ public class M3UPlaylistProcessor {
 	    this.extractArtist = extractArtist;
     }
 
+    // TODO - we should change this to extract data from the file itself rather than from the Playlist file
+	//      - Data might be the same, but it's better to get it from the source.
 	public List<MusicFileData> process(Path path) {
 		List<MusicFileData> processedFileData = new ArrayList<>();
 		try {
