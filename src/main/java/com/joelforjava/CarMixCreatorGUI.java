@@ -177,6 +177,9 @@ public class CarMixCreatorGUI {
 
     }
 
+    private void initOutputFormatTextField() {
+    }
+
     /**
      * This method is called from within the constructor to
      * initialize the form.
@@ -185,8 +188,10 @@ public class CarMixCreatorGUI {
 
         m3uFileNameField = new javax.swing.JTextField();
         destinationField = new javax.swing.JTextField();
+        outputFormatField = new JFormattedTextField();
         m3uFileLabel = new javax.swing.JLabel();
         destinationLabel = new javax.swing.JLabel();
+        JLabel outputFormatLabel = new JLabel();
         copyStatusProgressBar = new javax.swing.JProgressBar();
         progressInfoTextField = new javax.swing.JTextField();
         m3uFileSelectButton = new javax.swing.JButton();
@@ -197,11 +202,15 @@ public class CarMixCreatorGUI {
 
         initMenuBar();
 
+        outputFormatField.setText(CHEATING_AT_OUTPUT_FORMAT_NO_ARTIST);
+        outputFormatField.setEnabled(false);
+
         frame.setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
 
         m3uFileLabel.setText(PLAYLIST_LABEL_TEXT);
 
         destinationLabel.setText(DESTINATION_LABEL_TEXT);
+        outputFormatLabel.setText("Output Format"); // TODO
 
         progressInfoTextField.setBackground(new java.awt.Color(226, 226, 226));
         progressInfoTextField.setText(PROGRESS_INFO_LABEL_TEXT);
@@ -234,11 +243,13 @@ public class CarMixCreatorGUI {
                                         .addGroup(layout.createSequentialGroup()
                                                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                                                         .addComponent(destinationLabel)
-                                                        .addComponent(m3uFileLabel))
+                                                        .addComponent(m3uFileLabel)
+                                                        .addComponent(outputFormatLabel))
                                                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                                                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING, false)
                                                         .addComponent(m3uFileNameField, javax.swing.GroupLayout.Alignment.LEADING)
                                                         .addComponent(destinationField, javax.swing.GroupLayout.Alignment.LEADING, javax.swing.GroupLayout.DEFAULT_SIZE, 166, Short.MAX_VALUE)
+                                                        .addComponent(outputFormatField, javax.swing.GroupLayout.Alignment.LEADING)
                                                         .addComponent(overwriteExistingCheckbox, javax.swing.GroupLayout.Alignment.LEADING)
                                                         .addComponent(usingArtistCheckbox, javax.swing.GroupLayout.Alignment.LEADING)))
                                         .addComponent(progressInfoTextField, javax.swing.GroupLayout.PREFERRED_SIZE, 220, javax.swing.GroupLayout.PREFERRED_SIZE))
@@ -263,6 +274,11 @@ public class CarMixCreatorGUI {
                                         .addComponent(destinationField, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                                         .addComponent(destinationLabel)
                                         .addComponent(selectDestinationButton))
+                                .addGap(18, 18, 18)
+                                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                                        .addComponent(outputFormatField, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                        .addComponent(outputFormatLabel)
+                                        )
                                 .addGap(46, 46, 46)
                                 .addComponent(overwriteExistingCheckbox)
                                 .addComponent(usingArtistCheckbox)
@@ -281,8 +297,10 @@ public class CarMixCreatorGUI {
 
     private void usingArtistCheckboxActionPerformed(java.awt.event.ActionEvent evt) {
         if (usingArtistCheckbox.isSelected()) {
+            outputFormatField.setText(OUTPUT_FORMAT);
             setUsingArtistName(true);
         } else {
+            outputFormatField.setText(CHEATING_AT_OUTPUT_FORMAT_NO_ARTIST);
             setUsingArtistName(false);
         }
     }
@@ -355,6 +373,7 @@ public class CarMixCreatorGUI {
     private javax.swing.JButton m3uFileSelectButton;
     private javax.swing.JTextField progressInfoTextField;
     private javax.swing.JButton selectDestinationButton;
+    private JTextField outputFormatField;
     private JCheckBox usingArtistCheckbox;
     private JCheckBox overwriteExistingCheckbox;
 
@@ -410,12 +429,14 @@ public class CarMixCreatorGUI {
 
     private static final String HELP_MENU_LABEL = "Help";
 
-    private static String OUTPUT_FORMAT = "{OUTPUT_DIR}" + FILE_SEPARATOR + "{ARTIST}" + FILE_SEPARATOR + "{SONG_NAME}";
+    private static String OUTPUT_FORMAT = "{OUTPUT_DIR}" + FILE_SEPARATOR + "{ARTIST}" + FILE_SEPARATOR + "{FILE_NAME}";
+
+    private static String CHEATING_AT_OUTPUT_FORMAT_NO_ARTIST = "{OUTPUT_DIR}" +  FILE_SEPARATOR + "{FILE_NAME}";
 
     private static List<OutputFormatTokens> requiredTokens = Collections.singletonList(OutputFormatTokens.OUTPUT_DIR);
 
     public enum OutputFormatTokens {
-        OUTPUT_DIR, ARTIST, SONG_NAME
+        OUTPUT_DIR, ARTIST, SONG_NAME, FILE_NAME
         // TODO - add ALBUM_ARTIST, TRACK_NUM, and others that might be of use
     }
     public enum Status {
