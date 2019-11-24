@@ -17,10 +17,13 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 import javax.swing.*;
 import javax.swing.filechooser.FileFilter;
 import javax.swing.filechooser.FileNameExtensionFilter;
@@ -135,14 +138,25 @@ public class CarMixCreatorGUI {
 
     private String generateDestinationFileUri(Path source, MusicFileData fileData) {
         String fileName = source.getFileName().toString();
+        List<String> formatTokens = parseOutputFormatString(); // TODO - we shouldn't have to do this for every file!
         final String newFIleUri;
-        if (this.isUsingArtistName()) {
+        if (formatTokens.contains("ARTIST")) {
             String artistName = fileData.getArtistName();
             newFIleUri = this.getStrDestDirectoryName() + artistName + FILE_SEPARATOR + fileName;
         } else {
             newFIleUri = this.getStrDestDirectoryName() + fileName;
         }
         return newFIleUri;
+    }
+
+    private List<String> parseOutputFormatString() {
+        String[] tokens = OUTPUT_FORMAT.split(FILE_SEPARATOR);
+        Matcher matcher = EXTRACT_FORMAT_TOKENS.matcher(tokens[1]);
+        List<String> formatTokens = new ArrayList<>();
+        if (matcher.find()) {
+            formatTokens.add(matcher.group(1));
+        }
+        return formatTokens;
     }
 
     private void initMenuBar() {
@@ -175,9 +189,6 @@ public class CarMixCreatorGUI {
 
         frame.setJMenuBar(jMenuBar1);
 
-    }
-
-    private void initOutputFormatTextField() {
     }
 
     /**
@@ -431,7 +442,10 @@ public class CarMixCreatorGUI {
 
     private static String OUTPUT_FORMAT = "{OUTPUT_DIR}" + FILE_SEPARATOR + "{ARTIST}" + FILE_SEPARATOR + "{FILE_NAME}";
 
+    // TODO - really?
     private static String CHEATING_AT_OUTPUT_FORMAT_NO_ARTIST = "{OUTPUT_DIR}" +  FILE_SEPARATOR + "{FILE_NAME}";
+
+    private static final Pattern EXTRACT_FORMAT_TOKENS = Pattern.compile("\\{(.*?)}");
 
     private static List<OutputFormatTokens> requiredTokens = Collections.singletonList(OutputFormatTokens.OUTPUT_DIR);
 
