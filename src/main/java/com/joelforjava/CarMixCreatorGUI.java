@@ -31,6 +31,7 @@ import javax.swing.filechooser.FileNameExtensionFilter;
 import com.joelforjava.model.MusicFileData;
 import com.joelforjava.processor.M3UPlaylistProcessor;
 import com.joelforjava.processor.MusicFileDataExtractor;
+import com.joelforjava.processor.MusicFileDataProcessor;
 import com.joelforjava.request.CopyRequest;
 import com.joelforjava.service.CopyFileService;
 import org.apache.commons.lang3.StringUtils;
@@ -45,7 +46,6 @@ public class CarMixCreatorGUI {
      */
     public CarMixCreatorGUI() {
         frame = new JFrame();
-        copyService = new CopyFileService();
         playlistProcessor = new M3UPlaylistProcessor().withDataExtractor(new MusicFileDataExtractor());
         initComponents();
     }
@@ -107,56 +107,14 @@ public class CarMixCreatorGUI {
     }
 
     private Status processPlaylist(Path path) {
+        // TODO - at some point, we probably want to just extract everything
+        //      - Then make the output_format more dynamic, e.g. {DIR}/{ALBUM_ARTIST}/{ALBUM}/{FILE_NAME}
         List<MusicFileData> musicFileData = playlistProcessor.withExtractArtist(this.isUsingArtistName()).process(path);
-        for (MusicFileData entry : musicFileData) {
-            processTrackData(entry);
-        }
+        String outputFormat = this.outputFormatField.getText();
+        MusicFileDataProcessor musicFileDataProcessor = new MusicFileDataProcessor(this.getStrDestDirectoryName(), outputFormat, overwriteExisting, new CopyFileService());
+        musicFileDataProcessor.process(musicFileData);
         return Status.PROC_SUCCESSFULLY;
 
-    }
-
-    private void processTrackData(MusicFileData fileData) {
-        String fileDataUri = fileData.getUri();
-        Path source = Paths.get(fileDataUri);
-        if (Files.exists(source)) {
-            try {
-                final String newFileName = generateDestinationFileUri(source, fileData);
-                Path target = Paths.get(newFileName);
-                CopyRequest request = new CopyRequest(source, target, overwriteExisting);
-                copyService.copy(request);
-                String strLogInfo = "Copied: " + fileDataUri + "\n to " + newFileName;
-                setProgressInfoText(strLogInfo);
-                LOGGER.log(Level.INFO, strLogInfo);
-            } catch (IOException ex) {
-                LOGGER.log(Level.SEVERE, null, ex);
-            }
-        } else {
-            String strLogWarning = "File not found! - " + fileDataUri;
-            LOGGER.log(Level.WARNING, strLogWarning);
-        }
-    }
-
-    private String generateDestinationFileUri(Path source, MusicFileData fileData) {
-        String fileName = source.getFileName().toString();
-        List<String> formatTokens = parseOutputFormatString(); // TODO - we shouldn't have to do this for every file!
-        final String newFIleUri;
-        if (formatTokens.contains("ARTIST")) {
-            String artistName = fileData.getArtistName();
-            newFIleUri = this.getStrDestDirectoryName() + artistName + FILE_SEPARATOR + fileName;
-        } else {
-            newFIleUri = this.getStrDestDirectoryName() + fileName;
-        }
-        return newFIleUri;
-    }
-
-    private List<String> parseOutputFormatString() {
-        String[] tokens = OUTPUT_FORMAT.split(FILE_SEPARATOR);
-        Matcher matcher = EXTRACT_FORMAT_TOKENS.matcher(tokens[1]);
-        List<String> formatTokens = new ArrayList<>();
-        if (matcher.find()) {
-            formatTokens.add(matcher.group(1));
-        }
-        return formatTokens;
     }
 
     private void initMenuBar() {
@@ -393,8 +351,6 @@ public class CarMixCreatorGUI {
 
     private boolean usingArtistName;
     private boolean overwriteExisting;
-
-    private final CopyFileService copyService;
 
     private final M3UPlaylistProcessor playlistProcessor;
 
