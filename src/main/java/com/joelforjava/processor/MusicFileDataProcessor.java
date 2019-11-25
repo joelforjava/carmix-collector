@@ -20,13 +20,13 @@ import java.util.regex.Pattern;
 
 public class MusicFileDataProcessor {
 
-    private String outputFormat;
+    private final String outputFormat;
 
-    private List<String> formatTokens;
+    private final List<String> formatTokens;
 
-    private String outputDirectoryName;
+    private final String outputDirectoryName;
 
-    private boolean overwriteExisting;
+    private final boolean overwriteExisting;
 
     private final CopyFileService copyService;
 
@@ -77,6 +77,7 @@ public class MusicFileDataProcessor {
     private String generateDestinationFileUri(Path source, MusicFileData fileData) {
         String fileName = source.getFileName().toString();
         final String newFIleUri;
+        // TODO - need a better way of handling new File URI generation, but this will do for now.
         if (this.formatTokens.contains("ARTIST")) {
             String artistName = fileData.getArtistName();
             newFIleUri = this.getStrDestDirectoryName() + artistName + FILE_SEPARATOR + fileName;
@@ -99,7 +100,11 @@ public class MusicFileDataProcessor {
     }
 
     private String getStrDestDirectoryName() {
-        return this.outputDirectoryName;
+        String returnString = this.outputDirectoryName;
+        if (!returnString.endsWith(FILE_SEPARATOR)) {
+            returnString = returnString + FILE_SEPARATOR;
+        }
+        return returnString;
     }
 
     public List<String> getFormatTokens() {
