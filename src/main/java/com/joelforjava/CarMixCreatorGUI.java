@@ -13,17 +13,11 @@ package com.joelforjava;
 
 import java.awt.event.ActionEvent;
 import java.io.File;
-import java.io.IOException;
-import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
-import java.util.logging.Level;
 import java.util.logging.Logger;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 import javax.swing.*;
 import javax.swing.filechooser.FileFilter;
 import javax.swing.filechooser.FileNameExtensionFilter;
@@ -32,7 +26,6 @@ import com.joelforjava.model.MusicFileData;
 import com.joelforjava.processor.M3UPlaylistProcessor;
 import com.joelforjava.processor.MusicFileDataExtractor;
 import com.joelforjava.processor.MusicFileDataProcessor;
-import com.joelforjava.request.CopyRequest;
 import com.joelforjava.service.CopyFileService;
 import org.apache.commons.lang3.StringUtils;
 
@@ -398,13 +391,12 @@ public class CarMixCreatorGUI {
 
     private static String OUTPUT_FORMAT = "{OUTPUT_DIR}" + FILE_SEPARATOR + "{ARTIST}" + FILE_SEPARATOR + "{FILE_NAME}";
 
-    // TODO - really?
+    // TODO - really? - update to where user can manipulate the FORMAT directly!
     private static String CHEATING_AT_OUTPUT_FORMAT_NO_ARTIST = "{OUTPUT_DIR}" +  FILE_SEPARATOR + "{FILE_NAME}";
-
-    private static final Pattern EXTRACT_FORMAT_TOKENS = Pattern.compile("\\{(.*?)}");
 
     private static List<OutputFormatTokens> requiredTokens = Collections.singletonList(OutputFormatTokens.OUTPUT_DIR);
 
+    // TODO - do we even need this?
     public enum OutputFormatTokens {
         OUTPUT_DIR, ARTIST, SONG_NAME, FILE_NAME
         // TODO - add ALBUM_ARTIST, TRACK_NUM, and others that might be of use
