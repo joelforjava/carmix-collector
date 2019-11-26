@@ -34,6 +34,7 @@ public class MusicFileDataProcessor {
 
     private static final Logger LOGGER = Logger.getLogger(MusicFileData.class.getName());
 
+    // For now, outputFormat must be in the format of {TOKEN1}/{TOKEN2}/{TOKEN3}
     private static final Pattern EXTRACT_FORMAT_TOKENS = Pattern.compile("\\{(.*?)}");
 
     public MusicFileDataProcessor(String outputDirectoryName, String outputFormat,
@@ -76,18 +77,23 @@ public class MusicFileDataProcessor {
 
     private String generateDestinationFileUri(Path source, MusicFileData fileData) {
         String fileName = source.getFileName().toString();
-        final String newFIleUri;
-        // TODO - need a better way of handling new File URI generation, but this will do for now.
-        if (this.formatTokens.contains("ARTIST")) {
-            String artistName = fileData.getArtistName();
-            newFIleUri = this.getStrDestDirectoryName() + artistName + FILE_SEPARATOR + fileName;
-        } else {
-            newFIleUri = this.getStrDestDirectoryName() + fileName;
+        final StringBuilder newFileUrlBuilder = new StringBuilder();
+        for (String token : formatTokens) {
+            if ("OUTPUT_DIR".equals(token)) {
+                newFileUrlBuilder.append(this.getStrDestDirectoryName()).append(FILE_SEPARATOR);
+            } else if ("ARTIST".equals(token)) {
+                String artistName = fileData.getArtistName();
+                newFileUrlBuilder.append(artistName).append(FILE_SEPARATOR);
+            } else if ("FILE_NAME".equals(token)) {
+                newFileUrlBuilder.append(fileName);
+            }
         }
-        return newFIleUri;
+        return newFileUrlBuilder.toString();
     }
 
     private List<String> parseOutputFormatString() {
+        // TODO - for now, we extract the tokens. However, it probably makes more sense to take the
+        //        format string and do a replace!
         String[] tokens = outputFormat.split(FILE_SEPARATOR);
         List<String> formatTokens = new ArrayList<>();
         for (String token : tokens) {

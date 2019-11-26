@@ -62,7 +62,7 @@ public class MusicFileDataProcessorTest {
     public void testProcessingASingleValidDataFileWithNoOverwriting() throws Exception {
         // given:
         File outputDirectory = temporaryOutFolder.getRoot();
-        String outputFormat = "{OUTPUT_DIR}" + FILE_SEPARATOR + "{ARTIST}";
+        String outputFormat = "{OUTPUT_DIR}" + FILE_SEPARATOR + "{ARTIST}" + FILE_SEPARATOR + "{FILE_NAME}";
         boolean overwriteExisting = false;
         CopyFileService mockCopyFileService = Mockito.mock(CopyFileService.class);
 
