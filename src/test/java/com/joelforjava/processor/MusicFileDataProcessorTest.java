@@ -42,7 +42,7 @@ public class MusicFileDataProcessorTest {
         MusicFileDataProcessor processor = new MusicFileDataProcessor("outputDirectory", "format", true, null);
     }
 
-    @Test
+    @Test // TODO - this will go away at some point
     public void testProcessorParsesOutputFormatAsExpected() {
         // given:
         File outputDirectory = temporaryOutFolder.getRoot();

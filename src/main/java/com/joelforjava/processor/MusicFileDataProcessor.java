@@ -75,20 +75,14 @@ public class MusicFileDataProcessor {
         }
     }
 
+    // This could cause problems if there are additional tokens, e.g. {ALBUM}
+    // Is there a 'cleaner' way to do this?
     private String generateDestinationFileUri(Path source, MusicFileData fileData) {
         String fileName = source.getFileName().toString();
-        final StringBuilder newFileUrlBuilder = new StringBuilder();
-        for (String token : formatTokens) {
-            if ("OUTPUT_DIR".equals(token)) {
-                newFileUrlBuilder.append(this.getStrDestDirectoryName()).append(FILE_SEPARATOR);
-            } else if ("ARTIST".equals(token)) {
-                String artistName = fileData.getArtistName();
-                newFileUrlBuilder.append(artistName).append(FILE_SEPARATOR);
-            } else if ("FILE_NAME".equals(token)) {
-                newFileUrlBuilder.append(fileName);
-            }
-        }
-        return newFileUrlBuilder.toString();
+        String artistName = fileData.getArtistName();
+        return this.outputFormat.replace("{OUTPUT_DIR}", this.outputDirectoryName)
+                .replace("{ARTIST}", artistName)
+                .replace("{FILE_NAME}", fileName);
     }
 
     private List<String> parseOutputFormatString() {
