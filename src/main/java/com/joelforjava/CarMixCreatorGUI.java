@@ -122,7 +122,6 @@ public class CarMixCreatorGUI {
         // TODO - at some point, we probably want to just extract everything
         //      - Then make the output_format more dynamic, e.g. {DIR}/{ALBUM_ARTIST}/{ALBUM}/{FILE_NAME}
         List<MusicFileData> musicFileData = playlistProcessor.withExtractArtist(this.isUsingArtistName()).process(path);
-        String outputFormat = this.outputFormatField.getText();
         MusicFileDataProcessor musicFileDataProcessor = new MusicFileDataProcessor(this.getStrDestDirectoryName(), outputFormat, overwriteExisting, new CopyFileService());
         musicFileDataProcessor.process(musicFileData);
         return Status.PROC_SUCCESSFULLY;

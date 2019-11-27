@@ -32,7 +32,7 @@ public class OutputFormat {
         if (newFormat == null) {
             return false;
         }
-        if (!newFormat.startsWith(Tokens.OUTPUT_DIR.withDelimiters())) {
+        if (!newFormat.startsWith(Tokens.OUTPUT_DIR.asDelimited())) {
             return false;
         }
         Matcher matcher = EXTRACT_FORMAT_TOKENS.matcher(newFormat);
@@ -78,12 +78,14 @@ public class OutputFormat {
         for (Tokens token : Tokens.values()) {
             System.out.printf("Working with Token %s%n", token);
             String currentTokenName = token.name();
-            String currentToken = token.withDelimiters();
+            String currentToken = token.asDelimited();
             if (Tokens.OUTPUT_DIR.name().equals(currentTokenName)) {
                 formatted = formatted.replace(currentToken, outputDirectory);
             } else if (Tokens.ARTIST.name().equals(currentTokenName)) {
                 String artistName = fileData.getArtistName();
-                formatted = formatted.replace(currentToken, artistName);
+                if (artistName != null) {
+                    formatted = formatted.replace(currentToken, artistName);
+                }
             } else if (Tokens.FILE_NAME.name().equals(currentTokenName)) {
                 formatted = formatted.replace(currentToken, fileName);
             }
@@ -95,7 +97,7 @@ public class OutputFormat {
     public enum Tokens {
         OUTPUT_DIR, ARTIST, SONG_NAME, FILE_NAME;
 
-        public String withDelimiters() {
+        public String asDelimited() {
             return "{" + this.name() + "}";
         }
     }

@@ -16,6 +16,8 @@ public class OutputFormatTest {
     @Rule
     public final TemporaryFolder temporaryInFolder = new TemporaryFolder();
 
+    private static final String FILE_SEPARATOR = File.separator;
+
     @Test
     public void testBasicDesiredFormatIsValid() {
         String desiredFormat = "{OUTPUT_DIR}/{ARTIST}";

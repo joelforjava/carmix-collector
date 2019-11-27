@@ -1,6 +1,7 @@
 package com.joelforjava.processor;
 
 import com.joelforjava.model.MusicFileData;
+import com.joelforjava.model.OutputFormat;
 import com.joelforjava.service.CopyFileService;
 import org.junit.Assert;
 import org.junit.Rule;
@@ -27,11 +28,11 @@ public class MusicFileDataProcessorTest {
     @Test
     public void testCreatingWithNullOutputDirectoryName() {
         expectedException.expect(NullPointerException.class);
-        MusicFileDataProcessor processor = new MusicFileDataProcessor(null, "format", true, new CopyFileService());
+        MusicFileDataProcessor processor = new MusicFileDataProcessor(null, new OutputFormat(), true, new CopyFileService());
     }
 
     @Test
-    public void testCreatingWIthNullFormatString() {
+    public void testCreatingWithNullFormatString() {
         expectedException.expect(NullPointerException.class);
         MusicFileDataProcessor processor = new MusicFileDataProcessor("outputDirectory", null, true, new CopyFileService());
     }
@@ -39,23 +40,7 @@ public class MusicFileDataProcessorTest {
     @Test
     public void testCreatingWithNullCopyFileService() {
         expectedException.expect(NullPointerException.class);
-        MusicFileDataProcessor processor = new MusicFileDataProcessor("outputDirectory", "format", true, null);
-    }
-
-    @Test // TODO - this will go away at some point
-    public void testProcessorParsesOutputFormatAsExpected() {
-        // given:
-        File outputDirectory = temporaryOutFolder.getRoot();
-        String outputFormat = "{OUTPUT_DIR}" + FILE_SEPARATOR + "{ARTIST}";
-        boolean overwriteExisting = false;
-        CopyFileService mockCopyFileService = Mockito.mock(CopyFileService.class);
-
-        MusicFileDataProcessor processor = new MusicFileDataProcessor(outputDirectory.getAbsolutePath(), outputFormat, overwriteExisting, mockCopyFileService);
-
-        List<String> tokens = processor.getFormatTokens();
-        Assert.assertEquals(2, tokens.size());
-        Assert.assertEquals("OUTPUT_DIR", tokens.get(0));
-        Assert.assertEquals("ARTIST", tokens.get(1));
+        MusicFileDataProcessor processor = new MusicFileDataProcessor("outputDirectory", new OutputFormat(), true, null);
     }
 
     @Test
@@ -66,7 +51,8 @@ public class MusicFileDataProcessorTest {
         boolean overwriteExisting = false;
         CopyFileService mockCopyFileService = Mockito.mock(CopyFileService.class);
 
-        MusicFileDataProcessor processor = new MusicFileDataProcessor(outputDirectory.getAbsolutePath(), outputFormat, overwriteExisting, mockCopyFileService);
+        // TODO - should probably mock out the OutputFormat
+        MusicFileDataProcessor processor = new MusicFileDataProcessor(outputDirectory.getAbsolutePath(), new OutputFormat(outputFormat), overwriteExisting, mockCopyFileService);
 
         // and:
         File inFile = temporaryInFolder.newFile("testIn.mp3");
@@ -85,7 +71,8 @@ public class MusicFileDataProcessorTest {
         boolean overwriteExisting = false;
         CopyFileService mockCopyFileService = Mockito.mock(CopyFileService.class);
 
-        MusicFileDataProcessor processor = new MusicFileDataProcessor(outputDirectory.getAbsolutePath(), outputFormat, overwriteExisting, mockCopyFileService);
+        // TODO - should probably mock out the OutputFormat
+        MusicFileDataProcessor processor = new MusicFileDataProcessor(outputDirectory.getAbsolutePath(), new OutputFormat(outputFormat), overwriteExisting, mockCopyFileService);
 
         // and:
         String invalidPath = outputDirectory.getAbsolutePath() + FILE_SEPARATOR + "INVALID_PATHE";
