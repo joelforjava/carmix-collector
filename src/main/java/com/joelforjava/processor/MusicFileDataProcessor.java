@@ -59,10 +59,11 @@ public class MusicFileDataProcessor {
         if (Files.exists(source)) {
             try {
                 final String newFileName = generateDestinationFileUri(source, fileData);
+                LOGGER.info(String.format("Generated new file name of %s%n", newFileName));
                 Path target = Paths.get(newFileName);
                 CopyRequest request = new CopyRequest(source, target, overwriteExisting);
                 copyService.copy(request);
-                String strLogInfo = "Copied: " + fileDataUri + "\n to " + newFileName;
+                String strLogInfo = String.format("Copied: %s\tto\t%s",fileDataUri, newFileName);
                 // TODO - how do we replicate this??
                 // setProgressInfoText(strLogInfo);
                 LOGGER.info(strLogInfo);
@@ -99,14 +100,6 @@ public class MusicFileDataProcessor {
             }
         }
         return Collections.unmodifiableList(formatTokens);
-    }
-
-    private String getStrDestDirectoryName() {
-        String returnString = this.outputDirectoryName;
-        if (!returnString.endsWith(FILE_SEPARATOR)) {
-            returnString = returnString + FILE_SEPARATOR;
-        }
-        return returnString;
     }
 
     public List<String> getFormatTokens() {

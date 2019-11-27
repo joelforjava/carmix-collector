@@ -68,6 +68,8 @@ public class CarMixCreatorGUI {
         if (ret == JFileChooser.APPROVE_OPTION) {
             File file = fileChooser.getSelectedFile();
             String strDestinationPath = file.getAbsolutePath();
+            // TODO - remove after troubleshooting or turn into DEBUG
+            System.out.printf("Selected a destination path of %s%n", strDestinationPath);
             if (!strDestinationPath.endsWith(FILE_SEPARATOR)) {
                 strDestinationPath = strDestinationPath + FILE_SEPARATOR;
             }
