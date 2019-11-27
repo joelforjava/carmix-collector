@@ -48,6 +48,12 @@ public class OutputFormatTest {
     }
 
     @Test
+    public void testDesiredFormatWithoutOutputDirTokenFirstIsInvalid() {
+        String desiredFormat = "{ARTIST}/{OUTPUT_DIR}";
+        Assert.assertFalse(OutputFormat.validate(desiredFormat));
+    }
+
+    @Test
     public void testDesiredFormatWithNonTokensIsValid() {
         String desiredFormat = "{OUTPUT_DIR}/subdirectory/{ARTIST}";
         OutputFormat outputFormat = new OutputFormat(desiredFormat);
@@ -74,5 +80,13 @@ public class OutputFormatTest {
         OutputFormat outputFormat = new OutputFormat("{OUTPUT_DIR} / {ARTIST}");
         expectedException.expect(IllegalArgumentException.class);
         outputFormat.withDesiredFormat("{OUTPUT_DIRECTORY}/{ARTIST}");
+    }
+
+    @Test
+    public void testAttemptingToProduceExpectedFormatBeforeSettingDesiredFormatResultsInException() throws Exception {
+        File inFile = temporaryInFolder.newFile("testIn.mp3");
+        MusicFileData musicFileData = new MusicFileData(inFile.getCanonicalPath()).withArtistName("TEST_ARTIST");
+        expectedException.expect(IllegalStateException.class);
+        new OutputFormat().produceFormatted(musicFileData, "/any/directory");
     }
 }

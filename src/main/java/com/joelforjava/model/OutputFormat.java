@@ -13,6 +13,10 @@ public class OutputFormat {
 
     private static final Pattern EXTRACT_FORMAT_TOKENS = Pattern.compile("\\{(.*?)}.*?");
 
+    public OutputFormat() {
+
+    }
+
     public OutputFormat(String desiredFormat) {
         if (!OutputFormat.validate(desiredFormat)) {
             throw new IllegalArgumentException("Invalid Format String provided!");
@@ -26,6 +30,9 @@ public class OutputFormat {
 
     public static boolean validate(String newFormat) {
         if (newFormat == null) {
+            return false;
+        }
+        if (!newFormat.startsWith(Tokens.OUTPUT_DIR.withDelimiters())) {
             return false;
         }
         Matcher matcher = EXTRACT_FORMAT_TOKENS.matcher(newFormat);
@@ -59,6 +66,9 @@ public class OutputFormat {
     }
 
     public String produceFormatted(MusicFileData fileData, String outputDirectory) {
+        if (desiredFormat == null) {
+            throw new IllegalStateException("desiredFormat must be set before calling this method!");
+        }
         String fileDataUri = fileData.getUri();
         Path source = Paths.get(fileDataUri);
         // TODO - not quite sure why I'm using a Path to get a URI I already have, unless I was using
@@ -68,7 +78,7 @@ public class OutputFormat {
         for (Tokens token : Tokens.values()) {
             System.out.printf("Working with Token %s%n", token);
             String currentTokenName = token.name();
-            String currentToken = "{" + currentTokenName + "}";
+            String currentToken = token.withDelimiters();
             if (Tokens.OUTPUT_DIR.name().equals(currentTokenName)) {
                 formatted = formatted.replace(currentToken, outputDirectory);
             } else if (Tokens.ARTIST.name().equals(currentTokenName)) {
@@ -83,6 +93,10 @@ public class OutputFormat {
     }
 
     public enum Tokens {
-        OUTPUT_DIR, ARTIST, SONG_NAME, FILE_NAME
+        OUTPUT_DIR, ARTIST, SONG_NAME, FILE_NAME;
+
+        public String withDelimiters() {
+            return "{" + this.name() + "}";
+        }
     }
 }

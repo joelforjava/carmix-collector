@@ -15,7 +15,6 @@ import java.awt.event.ActionEvent;
 import java.io.File;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.Collections;
 import java.util.List;
 import java.util.logging.Logger;
 import javax.swing.*;
@@ -23,6 +22,7 @@ import javax.swing.filechooser.FileFilter;
 import javax.swing.filechooser.FileNameExtensionFilter;
 
 import com.joelforjava.model.MusicFileData;
+import com.joelforjava.model.OutputFormat;
 import com.joelforjava.processor.M3UPlaylistProcessor;
 import com.joelforjava.processor.MusicFileDataExtractor;
 import com.joelforjava.processor.MusicFileDataProcessor;
@@ -40,6 +40,7 @@ public class CarMixCreatorGUI {
     public CarMixCreatorGUI() {
         frame = new JFrame();
         playlistProcessor = new M3UPlaylistProcessor().withDataExtractor(new MusicFileDataExtractor());
+        outputFormat = new OutputFormat();
         initComponents();
     }
 
@@ -76,21 +77,37 @@ public class CarMixCreatorGUI {
         }
     }
 
-    private void copyFilesToDestination() {
+    private boolean hasValidInputs() {
         String destDirectoryName = this.getStrDestDirectoryName();
         if (StringUtils.isBlank(destDirectoryName)) {
             // throw alert up
             //showDirErrorBox();
-            return;
+            System.err.printf("Destination directory %s is invalid!%n", destDirectoryName);
+            return false;
         }
 
         String playlistFileName = this.getStrPlaylistFileName();
         if (StringUtils.isBlank(playlistFileName)) {
             // throw alert up
             //showFileErrorBox();
+            System.err.printf("Playlist file %s is invalid!%n", playlistFileName);
+            return false;
+        }
+        if (!outputFormat.validate()) {
+            // throw alert up
+            //showFileErrorBox();
+            System.err.printf("Output format %s is invalid!%n", this.outputFormatField.getText());
+            return false;
+        }
+        return true;
+    }
+
+    private void copyFilesToDestination() {
+        if (!hasValidInputs()) {
             return;
         }
 
+        String playlistFileName = this.getStrPlaylistFileName();
         Path playlistPath = Paths.get(playlistFileName);
         Status status = processPlaylist(playlistPath);
         if (status == Status.PROC_SUCCESSFULLY) {
@@ -164,8 +181,20 @@ public class CarMixCreatorGUI {
 
         initMenuBar();
 
-        outputFormatField.setText(CHEATING_AT_OUTPUT_FORMAT_NO_ARTIST);
+        outputFormatField.setText(OUTPUT_FORMAT_NO_ARTIST);
+        outputFormat = outputFormat.withDesiredFormat(OUTPUT_FORMAT_NO_ARTIST);
+
         outputFormatField.setEnabled(false);
+        outputFormatField.addActionListener(evt -> {
+            System.out.println(evt.getSource());
+            final String currentText = outputFormatField.getText();
+            try {
+                outputFormat = outputFormat.withDesiredFormat(currentText);
+            } catch (IllegalArgumentException iae) {
+                System.err.printf("%s is not a valid output format%n", currentText);
+                // TODO - do we reset? Or show an error message?
+            }
+        });
 
         frame.setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
 
@@ -262,7 +291,7 @@ public class CarMixCreatorGUI {
             outputFormatField.setText(OUTPUT_FORMAT);
             setUsingArtistName(true);
         } else {
-            outputFormatField.setText(CHEATING_AT_OUTPUT_FORMAT_NO_ARTIST);
+            outputFormatField.setText(OUTPUT_FORMAT_NO_ARTIST);
             setUsingArtistName(false);
         }
     }
@@ -345,6 +374,8 @@ public class CarMixCreatorGUI {
     private boolean usingArtistName;
     private boolean overwriteExisting;
 
+    private OutputFormat outputFormat;
+
     private final M3UPlaylistProcessor playlistProcessor;
 
     private final JFrame frame;
@@ -392,15 +423,8 @@ public class CarMixCreatorGUI {
     private static String OUTPUT_FORMAT = "{OUTPUT_DIR}" + FILE_SEPARATOR + "{ARTIST}" + FILE_SEPARATOR + "{FILE_NAME}";
 
     // TODO - really? - update to where user can manipulate the FORMAT directly!
-    private static String CHEATING_AT_OUTPUT_FORMAT_NO_ARTIST = "{OUTPUT_DIR}" +  FILE_SEPARATOR + "{FILE_NAME}";
+    private static String OUTPUT_FORMAT_NO_ARTIST = "{OUTPUT_DIR}" +  FILE_SEPARATOR + "{FILE_NAME}";
 
-    private static List<OutputFormatTokens> requiredTokens = Collections.singletonList(OutputFormatTokens.OUTPUT_DIR);
-
-    // TODO - do we even need this?
-    public enum OutputFormatTokens {
-        OUTPUT_DIR, ARTIST, SONG_NAME, FILE_NAME
-        // TODO - add ALBUM_ARTIST, TRACK_NUM, and others that might be of use
-    }
     public enum Status {
         INVALID_HEADER,
         PROC_SUCCESSFULLY,

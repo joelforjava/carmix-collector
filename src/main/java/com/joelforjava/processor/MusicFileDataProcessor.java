@@ -80,9 +80,11 @@ public class MusicFileDataProcessor {
     private String generateDestinationFileUri(Path source, MusicFileData fileData) {
         String fileName = source.getFileName().toString();
         String artistName = fileData.getArtistName();
-        return this.outputFormat.replace("{OUTPUT_DIR}", this.outputDirectoryName)
-                .replace("{ARTIST}", artistName)
-                .replace("{FILE_NAME}", fileName);
+        String newFileUri = this.outputFormat.replace("{OUTPUT_DIR}", this.outputDirectoryName);
+        if (artistName != null) {
+            newFileUri = newFileUri.replace("{ARTIST}", artistName);
+        }
+        return newFileUri.replace("{FILE_NAME}", fileName);
     }
 
     private List<String> parseOutputFormatString() {
