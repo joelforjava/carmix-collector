@@ -68,11 +68,11 @@ public class OutputFormatTest {
         String desiredFormat = "{OUTPUT_DIR}/{ARTIST}/{FILE_NAME}";
         OutputFormat outputFormat = new OutputFormat(desiredFormat);
         String outputDirectory = "/my/output/directory";
-        File inFile = temporaryInFolder.newFile("testIn.mp3");
-        MusicFileData musicFileData = new MusicFileData(inFile.getCanonicalPath()).withArtistName("TEST_ARTIST");
+        String filePath = loadTestFileNameFromResources("empty.mp3");
+        MusicFileData musicFileData = new MusicFileData(filePath).withArtistName("TEST_ARTIST");
 
         String outputUri = outputFormat.produceFormatted(musicFileData, outputDirectory);
-        String expectedOutput = outputDirectory + File.separator + "TEST_ARTIST" + File.separator + "testIn.mp3";
+        String expectedOutput = outputDirectory + File.separator + "TEST_ARTIST" + File.separator + "empty.mp3";
         Assert.assertEquals(expectedOutput, outputUri);
 
     }
@@ -86,9 +86,14 @@ public class OutputFormatTest {
 
     @Test
     public void testAttemptingToProduceExpectedFormatBeforeSettingDesiredFormatResultsInException() throws Exception {
-        File inFile = temporaryInFolder.newFile("testIn.mp3");
-        MusicFileData musicFileData = new MusicFileData(inFile.getCanonicalPath()).withArtistName("TEST_ARTIST");
+        String filePath = loadTestFileNameFromResources("empty.mp3");
+        MusicFileData musicFileData = new MusicFileData(filePath).withArtistName("TEST_ARTIST");
         expectedException.expect(IllegalStateException.class);
         new OutputFormat().produceFormatted(musicFileData, "/any/directory");
     }
+
+    private String loadTestFileNameFromResources(String testFileName) {
+        return this.getClass().getClassLoader().getResource(testFileName).getFile();
+    }
+
 }

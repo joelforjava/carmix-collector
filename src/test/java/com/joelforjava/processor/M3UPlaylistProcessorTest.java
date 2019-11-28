@@ -26,10 +26,11 @@ public class M3UPlaylistProcessorTest {
     public void testWithSingleEntry() throws Exception {
         File inFile = temporaryFolder.newFile("testIn.m3u");
 
-        List<String> lines = new ArrayList<String>() {{
+        String fileName = loadTestFileNameFromResources("empty.mp3");
+        List<String> lines = new ArrayList<>() {{
             add("#EXTM3U");
             add("#EXTINF A Great Band - That Song You Remember");
-            add("M:\\Temp\\File.mp3");
+            add(fileName);
         }};
 
         try (BufferedWriter bw = new BufferedWriter(new FileWriter(inFile))) {
@@ -53,11 +54,11 @@ public class M3UPlaylistProcessorTest {
         List<String> lines = new ArrayList<String>() {{
             add("#EXTM3U");
             add("#EXTINF A Great Band - That Song You Remember");
-            add("M:\\Temp\\File.mp3");
+            add(loadTestFileNameFromResources("empty.mp3"));
             add("#EXTINF A Great Band - That Other Song You Remember");
-            add("M:\\Temp\\File2.mp3");
+            add(loadTestFileNameFromResources("empty.flac"));
             add("#EXTINF What Band Is This - That One Song by That One Band");
-            add("M:\\Temp\\File3.mp3");
+            add(loadTestFileNameFromResources("empty.ogg"));
         }};
 
         try (BufferedWriter bw = new BufferedWriter(new FileWriter(inFile))) {
@@ -80,9 +81,9 @@ public class M3UPlaylistProcessorTest {
 
         List<String> lines = new ArrayList<String>() {{
             add("#EXTM3U");
-            add("M:\\Temp\\File.mp3");
-            add("M:\\Temp\\File2.mp3");
-            add("M:\\Temp\\File3.mp3");
+            add(loadTestFileNameFromResources("empty.mp3"));
+            add(loadTestFileNameFromResources("empty-alac.m4a"));
+            add(loadTestFileNameFromResources("empty.wma"));
         }};
 
         try (BufferedWriter bw = new BufferedWriter(new FileWriter(inFile))) {
@@ -105,7 +106,7 @@ public class M3UPlaylistProcessorTest {
 
         List<String> lines = new ArrayList<String>() {{
             add("#EXTINF A Great Band - That Song You Remember");
-            add("M:\\Temp\\File.mp3");
+            add(loadTestFileNameFromResources("empty.mp3"));
         }};
 
         try (BufferedWriter bw = new BufferedWriter(new FileWriter(inFile))) {
@@ -127,5 +128,9 @@ public class M3UPlaylistProcessorTest {
         M3UPlaylistProcessor processor = new M3UPlaylistProcessor();
         expectedException.expect(NullPointerException.class);
         processor.process(null);
+    }
+
+    private String loadTestFileNameFromResources(String testFileName) {
+        return this.getClass().getClassLoader().getResource(testFileName).getFile();
     }
 }
