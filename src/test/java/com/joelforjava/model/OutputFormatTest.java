@@ -20,7 +20,7 @@ public class OutputFormatTest {
 
     @Test
     public void testBasicDesiredFormatIsValid() {
-        String desiredFormat = "{OUTPUT_DIR}/{ARTIST}";
+        String desiredFormat = generateTestDesiredFormat("{OUTPUT_DIR}", "{ARTIST}");
         OutputFormat outputFormat = new OutputFormat(desiredFormat);
 
         Assert.assertTrue(outputFormat.validate());
@@ -29,14 +29,14 @@ public class OutputFormatTest {
 
     @Test
     public void testMismatchedBracketsCausesDesiredFormatToBeInvalid() {
-        String desiredFormat = "{OUTPUT_DIR/{ARTIST}";
+        String desiredFormat = generateTestDesiredFormat("{OUTPUT_DIR", "{ARTIST}");
         expectedException.expect(IllegalArgumentException.class);
         new OutputFormat(desiredFormat);
     }
 
     @Test // TODO - however, how do we trim the spaces out? DO we trim the spaces out?
     public void testDesiredFormatCanHaveSpaces() {
-        String desiredFormat = "{OUTPUT_DIR} / {ARTIST}";
+        String desiredFormat = generateTestDesiredFormat("{OUTPUT_DIR} ", " {ARTIST}");
         OutputFormat outputFormat = new OutputFormat(desiredFormat);
 
         Assert.assertTrue(outputFormat.validate());
@@ -44,20 +44,20 @@ public class OutputFormatTest {
 
     @Test
     public void testDesiredFormatWithUnknownTokenIsInvalid() {
-        String desiredFormat = "{OUTPUT_DIRECTORY}/{ARTIST}";
+        String desiredFormat = generateTestDesiredFormat("{OUTPUT_DIRECTORY}", "{ARTIST}");
         expectedException.expect(IllegalArgumentException.class);
         new OutputFormat(desiredFormat);
     }
 
     @Test
     public void testDesiredFormatWithoutOutputDirTokenFirstIsInvalid() {
-        String desiredFormat = "{ARTIST}/{OUTPUT_DIR}";
+        String desiredFormat = generateTestDesiredFormat("{ARTIST}", "{OUTPUT_DIR}");
         Assert.assertFalse(OutputFormat.validate(desiredFormat));
     }
 
     @Test
     public void testDesiredFormatWithNonTokensIsValid() {
-        String desiredFormat = "{OUTPUT_DIR}/subdirectory/{ARTIST}";
+        String desiredFormat = generateTestDesiredFormat("{OUTPUT_DIR}", "subdirectory", "{ARTIST}");
         OutputFormat outputFormat = new OutputFormat(desiredFormat);
 
         Assert.assertTrue(outputFormat.validate());
@@ -65,7 +65,7 @@ public class OutputFormatTest {
 
     @Test
     public void testOutputFormatWillProduceExcpectedFormat() throws Exception {
-        String desiredFormat = "{OUTPUT_DIR}/{ARTIST}/{FILE_NAME}";
+        String desiredFormat = generateTestDesiredFormat("{OUTPUT_DIR}", "{ARTIST}", "{FILE_NAME}");
         OutputFormat outputFormat = new OutputFormat(desiredFormat);
         String outputDirectory = "/my/output/directory";
         String filePath = loadTestFileNameFromResources("empty.mp3");
@@ -79,7 +79,7 @@ public class OutputFormatTest {
 
     @Test
     public void testAttemptingToReplaceValidTokenWithInvalidTokenResultsInException() {
-        OutputFormat outputFormat = new OutputFormat("{OUTPUT_DIR} / {ARTIST}");
+        OutputFormat outputFormat = new OutputFormat(generateTestDesiredFormat("{OUTPUT_DIR} ", " {ARTIST}"));
         expectedException.expect(IllegalArgumentException.class);
         outputFormat.withDesiredFormat("{OUTPUT_DIRECTORY}/{ARTIST}");
     }
@@ -94,6 +94,10 @@ public class OutputFormatTest {
 
     private String loadTestFileNameFromResources(String testFileName) {
         return this.getClass().getClassLoader().getResource(testFileName).getFile();
+    }
+
+    private String generateTestDesiredFormat(String... tokens) {
+        return String.join(FILE_SEPARATOR, tokens);
     }
 
 }

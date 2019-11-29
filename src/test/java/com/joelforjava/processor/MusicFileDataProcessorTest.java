@@ -3,8 +3,6 @@ package com.joelforjava.processor;
 import com.joelforjava.model.MusicFileData;
 import com.joelforjava.model.OutputFormat;
 import com.joelforjava.service.CopyFileService;
-import org.junit.Assert;
-import org.junit.Ignore;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
@@ -12,8 +10,6 @@ import org.junit.rules.TemporaryFolder;
 import org.mockito.Mockito;
 
 import java.io.File;
-import java.io.FileNotFoundException;
-import java.util.List;
 
 public class MusicFileDataProcessorTest {
 
@@ -30,19 +26,19 @@ public class MusicFileDataProcessorTest {
     @Test
     public void testCreatingWithNullOutputDirectoryName() {
         expectedException.expect(NullPointerException.class);
-        MusicFileDataProcessor processor = new MusicFileDataProcessor(null, new OutputFormat(), true, new CopyFileService());
+        new MusicFileDataProcessor(null, new OutputFormat(), true, new CopyFileService());
     }
 
     @Test
     public void testCreatingWithNullFormatString() {
         expectedException.expect(NullPointerException.class);
-        MusicFileDataProcessor processor = new MusicFileDataProcessor("outputDirectory", null, true, new CopyFileService());
+        new MusicFileDataProcessor("outputDirectory", null, true, new CopyFileService());
     }
 
     @Test
     public void testCreatingWithNullCopyFileService() {
         expectedException.expect(NullPointerException.class);
-        MusicFileDataProcessor processor = new MusicFileDataProcessor("outputDirectory", new OutputFormat(), true, null);
+        new MusicFileDataProcessor("outputDirectory", new OutputFormat(), true, null);
     }
 
     @Test
@@ -54,11 +50,15 @@ public class MusicFileDataProcessorTest {
         CopyFileService mockCopyFileService = Mockito.mock(CopyFileService.class);
 
         // TODO - should probably mock out the OutputFormat
-        MusicFileDataProcessor processor = new MusicFileDataProcessor(outputDirectory.getAbsolutePath(), new OutputFormat(outputFormat), overwriteExisting, mockCopyFileService);
+        MusicFileDataProcessor processor = new MusicFileDataProcessor(
+                outputDirectory.getAbsolutePath(),
+                new OutputFormat(outputFormat),
+                overwriteExisting,
+                mockCopyFileService);
 
         // and:
-        String filePath = loadTestFileNameFromResources("empty.mp3");
-        MusicFileData musicFileData = new MusicFileData(filePath).withArtistName("TEST_ARTIST");
+        String filePath = loadTestFileNameFromResources("empty.mp3");  // XXX: encoded artist name is 'That Artist'
+        MusicFileData musicFileData = new MusicFileData(filePath);
 
         processor.process(musicFileData);
         // The method is void. We don't have a way to verify anything yet
@@ -74,14 +74,19 @@ public class MusicFileDataProcessorTest {
         CopyFileService mockCopyFileService = Mockito.mock(CopyFileService.class);
 
         // TODO - should probably mock out the OutputFormat
-        MusicFileDataProcessor processor = new MusicFileDataProcessor(outputDirectory.getAbsolutePath(), new OutputFormat(outputFormat), overwriteExisting, mockCopyFileService);
+        MusicFileDataProcessor processor = new MusicFileDataProcessor(
+                outputDirectory.getAbsolutePath(),
+                new OutputFormat(outputFormat),
+                overwriteExisting,
+                mockCopyFileService);
 
         // and:
         String invalidPath = outputDirectory.getAbsolutePath() + FILE_SEPARATOR + "INVALID_PATHE";
         // TODO - the test has changed a bit now that the Song class will throw an exception when there are file issues.
         //  Leaving for now until I get some of the kinks worked out with adding the Song class.
+        //  Or I could just make this a test that the Song class handles
         expectedException.expect(IllegalStateException.class);
-        MusicFileData musicFileData = new MusicFileData(invalidPath).withArtistName("TEST_ARTIST");
+        MusicFileData musicFileData = new MusicFileData(invalidPath);
 
 //        processor.process(musicFileData);
         // The method is void. We don't have a way to verify anything yet
