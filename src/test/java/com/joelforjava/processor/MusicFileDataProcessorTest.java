@@ -66,30 +66,14 @@ public class MusicFileDataProcessorTest {
     }
 
     @Test
-    public void testProcessingASingleInvalidDataFileResultsInNoFileWritten() throws Exception {
-        // given:
+    public void testAttemptingToCreateMusicFileDataWithInvalidFilePathResultsInException() throws Exception {
+        // when:
         File outputDirectory = temporaryOutFolder.getRoot();
-        String outputFormat = "{OUTPUT_DIR}" + FILE_SEPARATOR + "{ARTIST}";
-        boolean overwriteExisting = false;
-        CopyFileService mockCopyFileService = Mockito.mock(CopyFileService.class);
-
-        // TODO - should probably mock out the OutputFormat
-        MusicFileDataProcessor processor = new MusicFileDataProcessor(
-                outputDirectory.getAbsolutePath(),
-                new OutputFormat(outputFormat),
-                overwriteExisting,
-                mockCopyFileService);
-
-        // and:
         String invalidPath = outputDirectory.getAbsolutePath() + FILE_SEPARATOR + "INVALID_PATHE";
-        // TODO - the test has changed a bit now that the Song class will throw an exception when there are file issues.
-        //  Leaving for now until I get some of the kinks worked out with adding the Song class.
-        //  Or I could just make this a test that the Song class handles
+        // then:
         expectedException.expect(IllegalStateException.class);
         MusicFileData musicFileData = new MusicFileData(invalidPath);
 
-//        processor.process(musicFileData);
-        // The method is void. We don't have a way to verify anything yet
     }
 
     private String loadTestFileNameFromResources(String testFileName) {

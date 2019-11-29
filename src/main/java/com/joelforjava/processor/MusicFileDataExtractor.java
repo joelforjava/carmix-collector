@@ -15,6 +15,11 @@ import java.nio.file.Path;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
+/**
+ * Extract data from a given music file (MP3, FLAC, etc.)
+ * @deprecated Use {@see com.joelforjava.music.Song} instead
+ */
+@Deprecated
 public class MusicFileDataExtractor implements AudioFileMetadataExtractor {
 
     public String extractArtist(Path source) {

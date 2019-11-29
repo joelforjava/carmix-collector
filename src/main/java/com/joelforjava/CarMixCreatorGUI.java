@@ -24,7 +24,6 @@ import javax.swing.filechooser.FileNameExtensionFilter;
 import com.joelforjava.model.MusicFileData;
 import com.joelforjava.model.OutputFormat;
 import com.joelforjava.processor.M3UPlaylistProcessor;
-import com.joelforjava.processor.MusicFileDataExtractor;
 import com.joelforjava.processor.MusicFileDataProcessor;
 import com.joelforjava.service.CopyFileService;
 import org.apache.commons.lang3.StringUtils;
@@ -39,7 +38,7 @@ public class CarMixCreatorGUI {
      */
     public CarMixCreatorGUI() {
         frame = new JFrame();
-        playlistProcessor = new M3UPlaylistProcessor().withDataExtractor(new MusicFileDataExtractor());
+        playlistProcessor = new M3UPlaylistProcessor();
         outputFormat = new OutputFormat();
         initComponents();
     }
@@ -121,8 +120,9 @@ public class CarMixCreatorGUI {
     private Status processPlaylist(Path path) {
         // TODO - at some point, we probably want to just extract everything
         //      - Then make the output_format more dynamic, e.g. {DIR}/{ALBUM_ARTIST}/{ALBUM}/{FILE_NAME}
-        List<MusicFileData> musicFileData = playlistProcessor.withExtractArtist(this.isUsingArtistName()).process(path);
-        MusicFileDataProcessor musicFileDataProcessor = new MusicFileDataProcessor(this.getStrDestDirectoryName(), outputFormat, overwriteExisting, new CopyFileService());
+        List<MusicFileData> musicFileData = playlistProcessor.process(path);
+        MusicFileDataProcessor musicFileDataProcessor = new MusicFileDataProcessor(
+                this.getStrDestDirectoryName(), outputFormat, overwriteExisting, new CopyFileService());
         musicFileDataProcessor.process(musicFileData);
         return Status.PROC_SUCCESSFULLY;
 

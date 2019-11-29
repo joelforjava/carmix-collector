@@ -17,20 +17,7 @@ import com.joelforjava.model.MusicFileData;
 
 public class M3UPlaylistProcessor {
 
-	private boolean extractArtist;
-
-	private AudioFileMetadataExtractor dataExtractor;
-
-	public M3UPlaylistProcessor() {
-	    this(false);
-    }
-
-    public M3UPlaylistProcessor(boolean extractArtist) {
-	    this.extractArtist = extractArtist;
-    }
-
-    // TODO - we should change this to extract data from the file itself rather than from the Playlist file
-	//      - Data might be the same, but it's better to get it from the source.
+	// TODO - make static
 	public List<MusicFileData> process(Path path) {
 		List<MusicFileData> processedFileData = new ArrayList<>();
 		try {
@@ -49,40 +36,16 @@ public class M3UPlaylistProcessor {
 					// processExtraInfo(s);
 				} else {
 					MusicFileData data = new MusicFileData(s);
-					if (this.extractArtist) {
-                        Path musicFilePath = Paths.get(s);
-					    String artistName = dataExtractor.extractArtist(musicFilePath);
-					    processedFileData.add(data.withArtistName(artistName));
-                    } else {
-                        processedFileData.add(data);
-                    }
+					processedFileData.add(data);
 				}
 			}
 		} catch (IOException e) {
-			e.printStackTrace();
+			LOGGER.log(Level.WARNING, "Could not process playlist file", e);
 		}
 		
 		return processedFileData;
 	}
 
-	public void setDataExtractor(AudioFileMetadataExtractor dataExtractor) {
-	    this.dataExtractor = dataExtractor;
-    }
-
-    public M3UPlaylistProcessor withDataExtractor(AudioFileMetadataExtractor mp3DataExtractor) {
-	    setDataExtractor(mp3DataExtractor);
-	    return this;
-    }
-
-    public void setExtractArtist(boolean extractArtist) {
-	    this.extractArtist = extractArtist;
-    }
-
-    public M3UPlaylistProcessor withExtractArtist(boolean extractArtist) {
-	    setExtractArtist(extractArtist);
-	    return this;
-    }
-	
     private static final String M3U_HEADER = "#EXTM3U";
     private static final String M3U_INFO = "#EXTINF";
 
