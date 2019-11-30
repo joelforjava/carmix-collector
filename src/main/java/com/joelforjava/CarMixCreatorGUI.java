@@ -21,6 +21,7 @@ import javax.swing.*;
 import javax.swing.filechooser.FileFilter;
 import javax.swing.filechooser.FileNameExtensionFilter;
 
+import com.joelforjava.configuration.Settings;
 import com.joelforjava.model.MusicFileData;
 import com.joelforjava.model.OutputFormat;
 import com.joelforjava.processor.M3UPlaylistProcessor;
@@ -40,6 +41,7 @@ public class CarMixCreatorGUI {
         frame = new JFrame();
         playlistProcessor = new M3UPlaylistProcessor();
         outputFormat = new OutputFormat();
+        settings = new Settings();
         initComponents();
     }
 
@@ -122,7 +124,7 @@ public class CarMixCreatorGUI {
         //      - Then make the output_format more dynamic, e.g. {DIR}/{ALBUM_ARTIST}/{ALBUM}/{FILE_NAME}
         List<MusicFileData> musicFileData = playlistProcessor.process(path);
         MusicFileDataProcessor musicFileDataProcessor = new MusicFileDataProcessor(
-                this.getStrDestDirectoryName(), outputFormat, overwriteExisting, new CopyFileService());
+                this.getStrDestDirectoryName(), outputFormat, this.willOverwriteExisting(), new CopyFileService());
         musicFileDataProcessor.process(musicFileData);
         return Status.PROC_SUCCESSFULLY;
 
@@ -334,11 +336,11 @@ public class CarMixCreatorGUI {
     }
 
     public boolean willOverwriteExisting() {
-        return overwriteExisting;
+        return this.settings.isOverwriteEnabled();
     }
 
     public void setOverwriteExisting(boolean overwriteExisting) {
-        this.overwriteExisting = overwriteExisting;
+        this.settings.setOverwriteEnabled(overwriteExisting);
     }
 
     private JFrame getFrame() {
@@ -373,7 +375,7 @@ public class CarMixCreatorGUI {
     private String strDestDirectoryName;
 
     private boolean usingArtistName;
-    private boolean overwriteExisting;
+    private Settings settings;
 
     private OutputFormat outputFormat;
 
