@@ -11,6 +11,7 @@
 
 package com.joelforjava;
 
+import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.io.File;
 import java.nio.file.Path;
@@ -18,6 +19,9 @@ import java.nio.file.Paths;
 import java.util.List;
 import java.util.logging.Logger;
 import javax.swing.*;
+import javax.swing.border.LineBorder;
+import javax.swing.event.DocumentEvent;
+import javax.swing.event.DocumentListener;
 import javax.swing.filechooser.FileFilter;
 import javax.swing.filechooser.FileNameExtensionFilter;
 
@@ -187,15 +191,36 @@ public class CarMixCreatorGUI {
         outputFormatField.setText(OUTPUT_FORMAT_NO_ARTIST);
         outputFormat = outputFormat.withDesiredFormat(OUTPUT_FORMAT_NO_ARTIST);
 
-        outputFormatField.setEnabled(false);
-        outputFormatField.addActionListener(evt -> {
-            System.out.println(evt.getSource());
-            final String currentText = outputFormatField.getText();
-            try {
-                outputFormat = outputFormat.withDesiredFormat(currentText);
-            } catch (IllegalArgumentException iae) {
-                System.err.printf("%s is not a valid output format%n", currentText);
-                // TODO - do we reset? Or show an error message?
+        // yuck...
+        outputFormatField.getDocument().addDocumentListener(new DocumentListener() {
+            @Override
+            public void insertUpdate(DocumentEvent e) {
+                change(e);
+            }
+
+            @Override
+            public void removeUpdate(DocumentEvent e) {
+                change(e);
+            }
+
+            @Override
+            public void changedUpdate(DocumentEvent e) {
+                change(e);
+            }
+
+            private void change(DocumentEvent e) {
+                System.out.println(e.getDocument());
+                final String currentText = outputFormatField.getText();
+                try {
+                    System.out.printf("Validating outputFormat: %s%n", currentText);
+                    outputFormat = outputFormat.withDesiredFormat(currentText);
+                    outputFormatField.setBorder(null);
+                    // This breaks the UI, so commenting out for now.
+                    // outputFormatField.updateUI();
+                } catch (IllegalArgumentException iae) {
+                    System.err.printf("%s is not a valid output format%n", currentText);
+                    outputFormatField.setBorder(new LineBorder(Color.RED, 2));
+                }
             }
         });
 
