@@ -7,6 +7,7 @@ import org.junit.rules.ExpectedException;
 import org.junit.rules.TemporaryFolder;
 
 import java.io.File;
+import java.util.Optional;
 
 public class OutputFormatTest {
 
@@ -90,6 +91,29 @@ public class OutputFormatTest {
         MusicFileData musicFileData = new MusicFileData(filePath).withArtistName("TEST_ARTIST");
         expectedException.expect(IllegalStateException.class);
         new OutputFormat().produceFormatted(musicFileData, "/any/directory");
+    }
+
+    // Tokens tests
+
+    @Test
+    public void testLookingUpValidToken() {
+        // given:
+        String tokenName = "ALBUM_ARTIST";
+        // when:
+        Optional<OutputFormat.Tokens> lookupToken = OutputFormat.Tokens.lookup(tokenName);
+        // then:
+        Assert.assertTrue(lookupToken.isPresent());
+        // and:
+        Assert.assertEquals(OutputFormat.Tokens.ALBUM_ARTIST, lookupToken.get());
+    }
+
+    @Test
+    public void testLookingUpInvalidToken() {
+        // given:
+        String tokenName = "ALBUM_PERSON";
+        // then:
+        expectedException.expect(NullPointerException.class);
+        OutputFormat.Tokens.lookup(tokenName);
     }
 
     private String loadTestFileNameFromResources(String testFileName) {

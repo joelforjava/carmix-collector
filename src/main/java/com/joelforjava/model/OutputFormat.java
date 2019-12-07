@@ -2,8 +2,7 @@ package com.joelforjava.model;
 
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.Arrays;
-import java.util.List;
+import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -106,6 +105,16 @@ public class OutputFormat {
 
         public String asDelimited() {
             return "{" + this.name() + "}";
+        }
+
+        private static final Map<String, Tokens> nameToTokensMap = new LinkedHashMap<>();
+
+        static {
+            List.of(Tokens.values()).forEach(token -> nameToTokensMap.put(token.name(), token));
+        }
+
+        public static Optional<Tokens> lookup(String tokenName) {
+            return Optional.of(nameToTokensMap.get(tokenName.toUpperCase()));
         }
     }
 }
