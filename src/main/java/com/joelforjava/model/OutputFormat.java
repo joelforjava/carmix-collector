@@ -86,6 +86,13 @@ public class OutputFormat {
                 if (artistName != null) {
                     formatted = formatted.replace(currentToken, artistName);
                 }
+            } else if (Tokens.ALBUM_ARTIST.name().equals(currentTokenName)) {
+                String albumArtistName = fileData.getAlbumArtistName();
+                if (albumArtistName != null) {
+                    formatted = formatted.replace(currentToken, albumArtistName);
+                }
+                // TODO - handle the case where Album Artist is not available
+                //      - This is handled in MusicFileData, for now but that class may be deprecated in the future.
             } else if (Tokens.FILE_NAME.name().equals(currentTokenName)) {
                 formatted = formatted.replace(currentToken, fileName);
             }
@@ -95,7 +102,7 @@ public class OutputFormat {
     }
 
     public enum Tokens {
-        OUTPUT_DIR, ARTIST, SONG_NAME, FILE_NAME;
+        OUTPUT_DIR, ARTIST, ALBUM_ARTIST, SONG_NAME, FILE_NAME;
 
         public String asDelimited() {
             return "{" + this.name() + "}";

@@ -1,5 +1,6 @@
 package com.joelforjava.model;
 
+import com.joelforjava.music.model.Artist;
 import com.joelforjava.music.model.Song;
 import org.jaudiotagger.audio.exceptions.CannotReadException;
 import org.jaudiotagger.audio.exceptions.InvalidAudioFrameException;
@@ -54,4 +55,15 @@ public class MusicFileData {
     public String getArtistName() {
 	    return this.artistName;
     }
+
+    public String getAlbumArtistName() {
+    	final String value;
+    	Artist albumArtist = this.song.getAlbum().getAlbumArtist();
+    	if (albumArtist != null) {
+    		value = albumArtist.getName();
+		} else {
+    		value = this.artistName;
+		}
+    	return value;
+	}
 }

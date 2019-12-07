@@ -222,7 +222,7 @@ public class CarMixCreatorGUI {
                     String errMessage = String.format("%s is not a valid output format%n", currentText);
                     System.err.println(errMessage);
                     progressInfoTextField.setText(errMessage);
-                    outputFormatField.setBorder(new LineBorder(Color.RED, 2));
+                    outputFormatField.setBorder(new LineBorder(Color.RED, 1));
                 }
             }
         });
