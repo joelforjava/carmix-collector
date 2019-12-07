@@ -217,8 +217,11 @@ public class CarMixCreatorGUI {
                     outputFormatField.setBorder(null);
                     // This breaks the UI, so commenting out for now.
                     // outputFormatField.updateUI();
+                    progressInfoTextField.setText(PROGRESS_INFO_LABEL_TEXT);
                 } catch (IllegalArgumentException iae) {
-                    System.err.printf("%s is not a valid output format%n", currentText);
+                    String errMessage = String.format("%s is not a valid output format%n", currentText);
+                    System.err.println(errMessage);
+                    progressInfoTextField.setText(errMessage);
                     outputFormatField.setBorder(new LineBorder(Color.RED, 2));
                 }
             }
@@ -229,7 +232,7 @@ public class CarMixCreatorGUI {
         m3uFileLabel.setText(PLAYLIST_LABEL_TEXT);
 
         destinationLabel.setText(DESTINATION_LABEL_TEXT);
-        outputFormatLabel.setText("Output Format"); // TODO
+        outputFormatLabel.setText(OUTPUT_FORMAT_LABEL_TEXT);
 
         progressInfoTextField.setBackground(new java.awt.Color(226, 226, 226));
         progressInfoTextField.setText(PROGRESS_INFO_LABEL_TEXT);
@@ -423,6 +426,8 @@ public class CarMixCreatorGUI {
     private static final String PLAYLIST_LABEL_TEXT = "M3U File:";
 
     private static final String DESTINATION_LABEL_TEXT = "Destination:";
+
+    private static final String OUTPUT_FORMAT_LABEL_TEXT = "Output Format:";
 
     private static final String COPY_FILES_BUTTON_TEXT = "Copy Files";
 
