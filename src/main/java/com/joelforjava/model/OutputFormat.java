@@ -12,6 +12,10 @@ public class OutputFormat {
 
     private static final Pattern EXTRACT_FORMAT_TOKENS = Pattern.compile("\\{(.*?)}.*?");
 
+    private static final String UNKNOWN_ARTIST = "Unknown Artist";
+
+    private static final String UNKNOWN_ALBUM = "Unknown Album";
+
     public OutputFormat() {
 
     }
@@ -85,6 +89,8 @@ public class OutputFormat {
                     String artistName = fileData.getArtistName();
                     if (artistName != null) {
                         formatted = formatted.replace(delimited, artistName);
+                    } else {
+                        formatted = formatted.replace(delimited, UNKNOWN_ARTIST);
                     }
                     break;
                 case ALBUM_ARTIST:
@@ -94,6 +100,14 @@ public class OutputFormat {
                     }
                     // TODO - handle the case where Album Artist is not available
                     //      - This is handled in MusicFileData, for now but that class may be deprecated in the future.
+                    break;
+                case ALBUM_NAME:
+                    String albumTitle = fileData.getAlbumName();
+                    if (albumTitle != null) {
+                        formatted = formatted.replace(delimited, albumTitle);
+                    } else {
+                        formatted = formatted.replace(delimited, UNKNOWN_ALBUM);
+                    }
                     break;
                 case FILE_NAME:
                     formatted = formatted.replace(delimited, fileName);
@@ -110,7 +124,7 @@ public class OutputFormat {
     }
 
     public enum FormatToken {
-        OUTPUT_DIR, ARTIST, ALBUM_ARTIST, SONG_NAME, FILE_NAME;
+        OUTPUT_DIR, ARTIST, ALBUM_ARTIST, ALBUM_NAME, SONG_NAME, FILE_NAME;
 
         public String asDelimited() {
             return "{" + this.name() + "}";
