@@ -31,7 +31,7 @@ public class OutputFormat {
         if (newFormat == null) {
             return false;
         }
-        if (!newFormat.startsWith(Tokens.OUTPUT_DIR.asDelimited())) {
+        if (!newFormat.startsWith(FormatToken.OUTPUT_DIR.asDelimited())) {
             return false;
         }
         Matcher matcher = EXTRACT_FORMAT_TOKENS.matcher(newFormat);
@@ -39,7 +39,7 @@ public class OutputFormat {
             String currentToken = matcher.group(1);
             try {
                 System.out.printf("Checking for token: %s%n", currentToken);
-                Tokens.valueOf(currentToken);
+                FormatToken.valueOf(currentToken);
             } catch (IllegalArgumentException iae) {
                 System.err.printf("Token %s does not appear to be a valid token!%n", currentToken);
                 return false;
@@ -48,8 +48,8 @@ public class OutputFormat {
         return true;
     }
 
-    public List<Tokens> validTokens() {
-        return Arrays.asList(Tokens.values());
+    public List<FormatToken> validTokens() {
+        return Arrays.asList(FormatToken.values());
     }
 
     void setDesiredFormat(String desiredFormat) {
@@ -74,7 +74,7 @@ public class OutputFormat {
         //        it to check for existence? - this is code pulled from CarMixCreatorGUI
         String fileName = source.getFileName().toString();
         String formatted = desiredFormat;
-        for (Tokens token : Tokens.values()) {
+        for (FormatToken token : FormatToken.values()) {
             System.out.printf("Working with Token %s%n", token);
             String delimited = token.asDelimited();
             switch (token) {
@@ -109,20 +109,20 @@ public class OutputFormat {
         return formatted;
     }
 
-    public enum Tokens {
+    public enum FormatToken {
         OUTPUT_DIR, ARTIST, ALBUM_ARTIST, SONG_NAME, FILE_NAME;
 
         public String asDelimited() {
             return "{" + this.name() + "}";
         }
 
-        private static final Map<String, Tokens> nameToTokensMap = new LinkedHashMap<>();
+        private static final Map<String, FormatToken> nameToTokensMap = new LinkedHashMap<>();
 
         static {
-            List.of(Tokens.values()).forEach(token -> nameToTokensMap.put(token.name(), token));
+            List.of(FormatToken.values()).forEach(token -> nameToTokensMap.put(token.name(), token));
         }
 
-        public static Optional<Tokens> lookup(String tokenName) {
+        public static Optional<FormatToken> lookup(String tokenName) {
             return Optional.of(nameToTokensMap.get(tokenName.toUpperCase()));
         }
     }

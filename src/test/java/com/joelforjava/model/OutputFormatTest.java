@@ -100,11 +100,11 @@ public class OutputFormatTest {
         // given:
         String tokenName = "ALBUM_ARTIST";
         // when:
-        Optional<OutputFormat.Tokens> lookupToken = OutputFormat.Tokens.lookup(tokenName);
+        Optional<OutputFormat.FormatToken> lookupToken = OutputFormat.FormatToken.lookup(tokenName);
         // then:
         Assert.assertTrue(lookupToken.isPresent());
         // and:
-        Assert.assertEquals(OutputFormat.Tokens.ALBUM_ARTIST, lookupToken.get());
+        Assert.assertEquals(OutputFormat.FormatToken.ALBUM_ARTIST, lookupToken.get());
     }
 
     @Test
@@ -113,7 +113,7 @@ public class OutputFormatTest {
         String tokenName = "ALBUM_PERSON";
         // then:
         expectedException.expect(NullPointerException.class);
-        OutputFormat.Tokens.lookup(tokenName);
+        OutputFormat.FormatToken.lookup(tokenName);
     }
 
     private String loadTestFileNameFromResources(String testFileName) {
