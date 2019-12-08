@@ -76,26 +76,35 @@ public class OutputFormat {
         String formatted = desiredFormat;
         for (Tokens token : Tokens.values()) {
             System.out.printf("Working with Token %s%n", token);
-            String currentTokenName = token.name();
-            String currentToken = token.asDelimited();
-            if (Tokens.OUTPUT_DIR.name().equals(currentTokenName)) {
-                formatted = formatted.replace(currentToken, outputDirectory);
-            } else if (Tokens.ARTIST.name().equals(currentTokenName)) {
-                String artistName = fileData.getArtistName();
-                if (artistName != null) {
-                    formatted = formatted.replace(currentToken, artistName);
-                }
-            } else if (Tokens.ALBUM_ARTIST.name().equals(currentTokenName)) {
-                String albumArtistName = fileData.getAlbumArtistName();
-                if (albumArtistName != null) {
-                    formatted = formatted.replace(currentToken, albumArtistName);
-                }
-                // TODO - handle the case where Album Artist is not available
-                //      - This is handled in MusicFileData, for now but that class may be deprecated in the future.
-            } else if (Tokens.FILE_NAME.name().equals(currentTokenName)) {
-                formatted = formatted.replace(currentToken, fileName);
+            String delimited = token.asDelimited();
+            switch (token) {
+                case OUTPUT_DIR:
+                    formatted = formatted.replace(delimited, outputDirectory);
+                    break;
+                case ARTIST:
+                    String artistName = fileData.getArtistName();
+                    if (artistName != null) {
+                        formatted = formatted.replace(delimited, artistName);
+                    }
+                    break;
+                case ALBUM_ARTIST:
+                    String albumArtistName = fileData.getAlbumArtistName();
+                    if (albumArtistName != null) {
+                        formatted = formatted.replace(delimited, albumArtistName);
+                    }
+                    // TODO - handle the case where Album Artist is not available
+                    //      - This is handled in MusicFileData, for now but that class may be deprecated in the future.
+                    break;
+                case FILE_NAME:
+                    formatted = formatted.replace(delimited, fileName);
+                    break;
+                case SONG_NAME:
+                    // TODO - Since MusicFileData ONLY contains ARTIST and ALBUM_ARTIST name,
+                    //  we cannot currently handle SONG_NAME
+                    break;
+                default:
+                    break;
             }
-            // TODO - Since MusicFileData ONLY contains ARTIST name, we cannot currently handle SONG_NAME
         }
         return formatted;
     }
