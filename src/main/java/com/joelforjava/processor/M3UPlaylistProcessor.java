@@ -1,5 +1,6 @@
 package com.joelforjava.processor;
 
+import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
@@ -35,8 +36,12 @@ public class M3UPlaylistProcessor {
 					continue;
 					// processExtraInfo(s);
 				} else {
-					MusicFileData data = new MusicFileData(s);
-					processedFileData.add(data);
+					try {
+						MusicFileData data = new MusicFileData(s);
+						processedFileData.add(data);
+					} catch (Exception fnfe) {
+						LOGGER.warning("Could not load file for processing: " + s);
+					}
 				}
 			}
 		} catch (IOException e) {

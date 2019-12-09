@@ -64,8 +64,6 @@ public class MusicFileDataProcessor {
         }
     }
 
-    // This could cause problems if there are additional tokens, e.g. {ALBUM}
-    // Is there a 'cleaner' way to do this?
     private String generateDestinationFileUri(MusicFileData fileData) {
         return outputFormat.produceFormatted(fileData, this.outputDirectoryName);
     }

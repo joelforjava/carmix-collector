@@ -10,6 +10,8 @@ import org.junit.rules.TemporaryFolder;
 import org.mockito.Mockito;
 
 import java.io.File;
+import java.net.URL;
+import java.nio.file.Paths;
 
 public class MusicFileDataProcessorTest {
 
@@ -76,7 +78,8 @@ public class MusicFileDataProcessorTest {
 
     }
 
-    private String loadTestFileNameFromResources(String testFileName) {
-        return this.getClass().getClassLoader().getResource(testFileName).getFile();
+    private String loadTestFileNameFromResources(String testFileName) throws Exception {
+        URL fileUri = this.getClass().getClassLoader().getResource(testFileName);
+        return Paths.get(fileUri.toURI()).toFile().getCanonicalPath();
     }
 }

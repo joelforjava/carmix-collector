@@ -88,7 +88,9 @@ public class OutputFormat {
                 case ARTIST:
                     String artistName = fileData.getArtistName();
                     if (artistName != null) {
-                        formatted = formatted.replace(delimited, artistName);
+                        // TODO - naive attempt to prevent colons as part of a path in Windows
+                        //      - Will need to do something more comprehensive
+                        formatted = formatted.replace(delimited, artistName.replace(":", "-"));
                     } else {
                         formatted = formatted.replace(delimited, UNKNOWN_ARTIST);
                     }
@@ -96,7 +98,7 @@ public class OutputFormat {
                 case ALBUM_ARTIST:
                     String albumArtistName = fileData.getAlbumArtistName();
                     if (albumArtistName != null) {
-                        formatted = formatted.replace(delimited, albumArtistName);
+                        formatted = formatted.replace(delimited, albumArtistName.replace(":", "-"));
                     }
                     // TODO - handle the case where Album Artist is not available
                     //      - This is handled in MusicFileData, for now but that class may be deprecated in the future.
@@ -104,7 +106,7 @@ public class OutputFormat {
                 case ALBUM_NAME:
                     String albumTitle = fileData.getAlbumName();
                     if (albumTitle != null) {
-                        formatted = formatted.replace(delimited, albumTitle);
+                        formatted = formatted.replace(delimited, albumTitle.replace(":", "-"));
                     } else {
                         formatted = formatted.replace(delimited, UNKNOWN_ALBUM);
                     }

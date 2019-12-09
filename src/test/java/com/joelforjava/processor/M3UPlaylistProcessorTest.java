@@ -10,7 +10,9 @@ import org.junit.rules.TemporaryFolder;
 import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileWriter;
+import java.net.URL;
 import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -130,7 +132,8 @@ public class M3UPlaylistProcessorTest {
         processor.process(null);
     }
 
-    private String loadTestFileNameFromResources(String testFileName) {
-        return this.getClass().getClassLoader().getResource(testFileName).getFile();
+    private String loadTestFileNameFromResources(String testFileName) throws Exception {
+        URL fileUri = this.getClass().getClassLoader().getResource(testFileName);
+        return Paths.get(fileUri.toURI()).toFile().getCanonicalPath();
     }
 }

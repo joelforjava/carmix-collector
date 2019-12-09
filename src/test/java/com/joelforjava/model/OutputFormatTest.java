@@ -7,6 +7,9 @@ import org.junit.rules.ExpectedException;
 import org.junit.rules.TemporaryFolder;
 
 import java.io.File;
+import java.net.URI;
+import java.net.URL;
+import java.nio.file.Paths;
 import java.util.Optional;
 
 public class OutputFormatTest {
@@ -70,6 +73,7 @@ public class OutputFormatTest {
         OutputFormat outputFormat = new OutputFormat(desiredFormat);
         String outputDirectory = "/my/output/directory";
         String filePath = loadTestFileNameFromResources("empty.mp3");
+        System.out.println(filePath);
         MusicFileData musicFileData = new MusicFileData(filePath).withArtistName("TEST_ARTIST");
 
         String outputUri = outputFormat.produceFormatted(musicFileData, outputDirectory);
@@ -116,8 +120,9 @@ public class OutputFormatTest {
         OutputFormat.FormatToken.lookup(tokenName);
     }
 
-    private String loadTestFileNameFromResources(String testFileName) {
-        return this.getClass().getClassLoader().getResource(testFileName).getFile();
+    private String loadTestFileNameFromResources(String testFileName) throws Exception {
+        URL fileUri = this.getClass().getClassLoader().getResource(testFileName);
+        return Paths.get(fileUri.toURI()).toFile().getCanonicalPath();
     }
 
     private String generateTestDesiredFormat(String... tokens) {
