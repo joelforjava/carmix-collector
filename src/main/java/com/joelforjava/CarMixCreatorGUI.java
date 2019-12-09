@@ -100,10 +100,12 @@ public class CarMixCreatorGUI {
             System.err.printf("Playlist file %s is invalid!%n", playlistFileName);
             return false;
         }
+        // TODO - this will always pass since any attempt to update it causes an exception and it retains
+        //     the previous good format!! -- FIX!
         if (!outputFormat.validate()) {
-            // throw alert up
-            //showFileErrorBox();
-            System.err.printf("Output format %s is invalid!%n", this.outputFormatField.getText());
+            String errorMessage = String.format("Output format %s is invalid!%n", this.outputFormatField.getText());
+            this.warnUser(errorMessage);
+            System.err.println(errorMessage);
             return false;
         }
         return true;
@@ -132,6 +134,10 @@ public class CarMixCreatorGUI {
         musicFileDataProcessor.process(musicFileData);
         return Status.PROC_SUCCESSFULLY;
 
+    }
+
+    private void warnUser(String warnMessage) {
+        JOptionPane.showMessageDialog(getFrame(), warnMessage, "Error", JOptionPane.ERROR_MESSAGE);
     }
 
     private void initMenuBar() {
