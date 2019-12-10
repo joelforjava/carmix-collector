@@ -220,16 +220,25 @@ public class CarMixCreatorGUI {
                 try {
                     System.out.printf("Validating outputFormat: %s%n", currentText);
                     outputFormat = outputFormat.withDesiredFormat(currentText);
-                    outputFormatField.setBorder(null);
-                    // This breaks the UI, so commenting out for now.
-                    // outputFormatField.updateUI();
-                    progressInfoTextField.setText(PROGRESS_INFO_LABEL_TEXT);
+                    boolean isValidFormat = outputFormat.validate();
+                    if (!isValidFormat) {
+                        handleInvalidFormat(currentText);
+                    } else {
+                        outputFormatField.setBorder(null);
+                        // This breaks the UI, so commenting out for now.
+                        // outputFormatField.updateUI();
+                        progressInfoTextField.setText(PROGRESS_INFO_LABEL_TEXT);
+                    }
                 } catch (IllegalArgumentException iae) {
-                    String errMessage = String.format("%s is not a valid output format%n", currentText);
-                    System.err.println(errMessage);
-                    progressInfoTextField.setText(errMessage);
-                    outputFormatField.setBorder(new LineBorder(Color.RED, 1));
+                    handleInvalidFormat(currentText);
                 }
+            }
+
+            private void handleInvalidFormat(String currentFormatText) {
+                String errMessage = String.format("%s is not a valid output format%n", currentFormatText);
+                System.err.println(errMessage);
+                progressInfoTextField.setText(errMessage);
+                outputFormatField.setBorder(new LineBorder(Color.RED, 1));
             }
         });
 

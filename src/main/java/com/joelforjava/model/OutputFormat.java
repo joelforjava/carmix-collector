@@ -21,9 +21,6 @@ public class OutputFormat {
     }
 
     public OutputFormat(String desiredFormat) {
-        if (!OutputFormat.validate(desiredFormat)) {
-            throw new IllegalArgumentException("Invalid Format String provided!");
-        }
         this.desiredFormat = desiredFormat;
     }
 
@@ -61,17 +58,15 @@ public class OutputFormat {
     }
 
     public OutputFormat withDesiredFormat(String desiredFormat) {
-        if (!OutputFormat.validate(desiredFormat)) {
-            throw new IllegalArgumentException("Invalid Format String provided!");
-        }
         setDesiredFormat(desiredFormat);
         return this;
     }
 
     public String produceFormatted(MusicFileData fileData, String outputDirectory) {
-        if (desiredFormat == null) {
-            throw new IllegalStateException("desiredFormat must be set before calling this method!");
+        if (!this.validate()) {
+            throw new IllegalStateException(String.format("desiredFormat '%s' is invalid!", desiredFormat));
         }
+
         String fileDataUri = fileData.getUri();
         Path source = Paths.get(fileDataUri);
         // TODO - not quite sure why I'm using a Path to get a URI I already have, unless I was using

@@ -34,8 +34,7 @@ public class OutputFormatTest {
     @Test
     public void testMismatchedBracketsCausesDesiredFormatToBeInvalid() {
         String desiredFormat = generateTestDesiredFormat("{OUTPUT_DIR", "{ARTIST}");
-        expectedException.expect(IllegalArgumentException.class);
-        new OutputFormat(desiredFormat);
+        Assert.assertFalse(new OutputFormat(desiredFormat).validate());
     }
 
     @Test // TODO - however, how do we trim the spaces out? DO we trim the spaces out?
@@ -49,8 +48,7 @@ public class OutputFormatTest {
     @Test
     public void testDesiredFormatWithUnknownTokenIsInvalid() {
         String desiredFormat = generateTestDesiredFormat("{OUTPUT_DIRECTORY}", "{ARTIST}");
-        expectedException.expect(IllegalArgumentException.class);
-        new OutputFormat(desiredFormat);
+        Assert.assertFalse(new OutputFormat(desiredFormat).validate());
     }
 
     @Test
@@ -68,7 +66,7 @@ public class OutputFormatTest {
     }
 
     @Test
-    public void testOutputFormatWillProduceExcpectedFormat() throws Exception {
+    public void testOutputFormatWillProduceExpectedFormat() throws Exception {
         String desiredFormat = generateTestDesiredFormat("{OUTPUT_DIR}", "{ARTIST}", "{FILE_NAME}");
         OutputFormat outputFormat = new OutputFormat(desiredFormat);
         String outputDirectory = "/my/output/directory";
@@ -83,10 +81,9 @@ public class OutputFormatTest {
     }
 
     @Test
-    public void testAttemptingToReplaceValidTokenWithInvalidTokenResultsInException() {
+    public void testAttemptingToReplaceValidTokenWithInvalidTokenResultsInInvalidFormat() {
         OutputFormat outputFormat = new OutputFormat(generateTestDesiredFormat("{OUTPUT_DIR} ", " {ARTIST}"));
-        expectedException.expect(IllegalArgumentException.class);
-        outputFormat.withDesiredFormat("{OUTPUT_DIRECTORY}/{ARTIST}");
+        Assert.assertFalse(outputFormat.withDesiredFormat("{OUTPUT_DIRECTORY}/{ARTIST}").validate());
     }
 
     @Test
