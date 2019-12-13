@@ -2,6 +2,7 @@ package com.joelforjava.service;
 
 import com.joelforjava.request.CopyRequest;
 import org.junit.Assert;
+import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.TemporaryFolder;
@@ -9,6 +10,8 @@ import org.junit.rules.TemporaryFolder;
 import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileWriter;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 
 public class CopyFileServiceTest {
 
@@ -17,9 +20,17 @@ public class CopyFileServiceTest {
     @Rule
     public final TemporaryFolder temporaryOutFolder = new TemporaryFolder();
 
+    @Before
+    public void beforeTest() {
+        File root = temporaryOutFolder.getRoot();
+        for (File tempFile : root.listFiles()) {
+            tempFile.delete();
+        }
+    }
+
     @Test
     public void testCopyUsingRequestObject() throws Exception {
-        File inFile = temporaryInFolder.newFile("testIn.mp3");
+        File inFile = temporaryInFolder.newFile("testIn2.mp3");
 
         BufferedWriter writer = new BufferedWriter(new FileWriter(inFile));
         writer.write("#EXTM3U");
@@ -30,10 +41,10 @@ public class CopyFileServiceTest {
         writer.newLine();
         writer.close();
 
-        File outFile = temporaryOutFolder.newFile("testOut.mp3");
-
+        Path outPath = Paths.get(temporaryOutFolder.getRoot().getAbsolutePath(), "testOut2.mp3");
+        File outFile = outPath.toFile();
         CopyFileService service = new CopyFileService();
-        CopyRequest request = new CopyRequest(inFile.toPath(), outFile.toPath(), false);
+        CopyRequest request = new CopyRequest(inFile.toPath(), outPath, false);
         service.copy(request);
 
         Assert.assertTrue(outFile.exists());
