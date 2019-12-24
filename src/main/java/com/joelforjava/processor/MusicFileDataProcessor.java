@@ -45,11 +45,11 @@ public class MusicFileDataProcessor {
         String fileDataUri = fileData.getUri();
         Path source = Paths.get(fileDataUri);
         if (Files.exists(source)) {
+            final String newFileName = generateDestinationFileUri(fileData);
+            LOGGER.info(String.format("Generated new file name of %s%n", newFileName));
+            Path target = Paths.get(newFileName);
+            CopyRequest request = new CopyRequest(source, target, overwriteExisting);
             try {
-                final String newFileName = generateDestinationFileUri(fileData);
-                LOGGER.info(String.format("Generated new file name of %s%n", newFileName));
-                Path target = Paths.get(newFileName);
-                CopyRequest request = new CopyRequest(source, target, overwriteExisting);
                 copyService.copy(request);
                 String strLogInfo = String.format("Copied: %s\tto\t%s",fileDataUri, newFileName);
                 // TODO - how do we replicate this??

@@ -1,6 +1,8 @@
 package com.joelforjava.service;
 
 import com.joelforjava.request.CopyRequest;
+import com.joelforjava.service.response.CopyResponse;
+import com.joelforjava.service.response.CopyResponse.ResponseStatus;
 
 import static java.nio.file.StandardCopyOption.COPY_ATTRIBUTES;
 import static java.nio.file.StandardCopyOption.REPLACE_EXISTING;
@@ -10,6 +12,7 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.util.Optional;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -33,6 +36,8 @@ public class CopyFileService {
 			canWrite(outPath);
 			if (overwriteExisting) {
 				LOGGER.warning("File " + outPath + " will be overwritten");
+			} else {
+				return;
 			}
 		} else {
 			Path parentDirectory = outPath.getParent();
@@ -60,7 +65,7 @@ public class CopyFileService {
 		}
 		return true;
 	}
-	
+
 	/**
 	 * Checks to see if a file represented by a Path can be read.
 	 * 

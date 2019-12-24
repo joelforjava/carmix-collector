@@ -66,14 +66,15 @@ public class CopyFileServiceTest {
         writer.newLine();
         writer.close();
 
-        File outFile = temporaryOutFolder.newFile("testOut.mp3");
+        Path outPath = Paths.get(temporaryOutFolder.getRoot().getAbsolutePath(), "testOut.mp3");
+        File outFile = outPath.toFile();
 
         CopyFileService service = new CopyFileService();
-        CopyRequest request = new CopyRequest(inFile.toPath(), outFile.toPath(), false);
+        CopyRequest request = new CopyRequest(inFile.toPath(), outPath, false);
         service.copy(request);
         long lastModified1 = outFile.lastModified();
 
-        CopyRequest overwriteRequest = new CopyRequest(inFile.toPath(), outFile.toPath(), true);
+        CopyRequest overwriteRequest = new CopyRequest(inFile.toPath(), outPath, true);
         service.copy(overwriteRequest);
         long lastModified2 = outFile.lastModified();
 
